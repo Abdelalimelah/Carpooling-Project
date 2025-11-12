@@ -1,0 +1,490 @@
+/* Modern Trip Details Page Styles */
+
+:root {
+  /* Color Palette */
+  --ocean-deep: #1a5f7a;
+  --ocean-bright: #2b88b8;
+  --ocean-light: #57a6c8;
+  --coral: #ff6b6b;
+  --coral-light: #ff8787;
+  
+  /* Neutrals */
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+  --text-dark: #1e293b;
+  --text-medium: #64748b;
+  --text-light: #94a3b8;
+  --border-color: #e2e8f0;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(26, 95, 122, 0.08);
+  --shadow-md: 0 8px 30px rgba(26, 95, 122, 0.12);
+  --shadow-lg: 0 20px 60px rgba(26, 95, 122, 0.15);
+  --shadow-glow: 0 0 40px rgba(43, 136, 184, 0.2);
+  
+  /* Gradients */
+  --gradient-ocean: linear-gradient(135deg, #1a5f7a 0%, #2b88b8 50%, #57a6c8 100%);
+  --gradient-overlay: linear-gradient(180deg, rgba(26, 95, 122, 0.7) 0%, rgba(43, 136, 184, 0.85) 100%);
+  
+  /* Spacing */
+  --radius: 12px;
+  --radius-lg: 16px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Layout */
+.trip-details-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.details-header {
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--gradient-ocean);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.logo-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: -0.02em;
+}
+
+/* Header Navigation */
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Main Content */
+.details-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.page-header p {
+  font-size: 1.125rem;
+  color: var(--text-medium);
+}
+
+/* Sections */
+.trip-overview-section,
+.info-section,
+.action-section {
+  background: var(--bg-white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Seats Indicator */
+.seats-indicator {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.seats-indicator.available {
+  background: #d4edda;
+  color: #155724;
+}
+
+.seats-indicator.unavailable {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Trip Overview Grid */
+.trip-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.overview-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-light);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.overview-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--gradient-ocean);
+  border-radius: var(--radius);
+  color: white;
+  flex-shrink: 0;
+}
+
+.overview-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-label {
+  font-size: 0.9rem;
+  color: var(--text-medium);
+  margin-bottom: 0.25rem;
+}
+
+.overview-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Info Cards */
+.info-card {
+  background: var(--bg-light);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.user-avatar,
+.car-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-white);
+  border-radius: 50%;
+  color: var(--text-medium);
+  border: 2px solid var(--border-color);
+}
+
+.user-avatar.large,
+.car-icon.large {
+  width: 64px;
+  height: 64px;
+}
+
+.user-avatar svg,
+.car-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.user-avatar.large svg,
+.car-icon.large svg {
+  width: 32px;
+  height: 32px;
+}
+
+.user-info h3,
+.car-info h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.user-contact,
+.car-details {
+  color: var(--text-medium);
+  font-size: 0.9rem;
+}
+
+.info-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.car-features {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-medium);
+  background: var(--bg-white);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.feature-item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ocean-bright);
+}
+
+/* Action Section */
+.action-section {
+  text-align: center;
+  background: var(--gradient-ocean);
+  color: white;
+}
+
+.action-section h2 {
+  color: white;
+}
+
+.btn-large {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.125rem;
+}
+
+.action-note {
+  margin-top: 1rem;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--gradient-ocean);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ocean-bright);
+  border: 2px solid var(--ocean-bright);
+}
+
+.btn-outline:hover {
+  background: var(--ocean-bright);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-medium);
+}
+
+.empty-state.small {
+  padding: 2rem;
+}
+
+.empty-state svg {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+  margin-bottom: 0;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .details-main {
+    padding: 1rem;
+  }
+  
+  .trip-overview-section,
+  .info-section,
+  .action-section {
+    padding: 1.5rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .trip-overview-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .info-actions {
+    justify-content: center;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .overview-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .car-features {
+    justify-content: center;
+  }
+}
+
+/* Focus Visible for Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--ocean-bright);
+  outline-offset: 2px;
+}
