@@ -1,6 +1,7 @@
 package com.JAVA.DAO.Implement;
 
-import java.sql.*; 
+import java.sql.*;
+
 import com.JAVA.Beans.UserBean;
 import com.JAVA.DAO.UserDAO;
 import com.JAVA.DAO.Exception.DAOException;
@@ -113,4 +114,5 @@ public class UserDAOImpl implements UserDAO {
             throw new DAOException("Error updating password for user ID: " + userId, e);
         }
     }
+
 }

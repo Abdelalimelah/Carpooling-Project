@@ -8,5 +8,4 @@ public interface DriverDAO {
 	 public boolean create(DriverBean driver) throws DAOException;
 	 public int getDriverIdByUserId(int userId) throws DAOException;
 	 public int findUserIdByDriverId(int driverId) throws DAOException;
-	 
 }

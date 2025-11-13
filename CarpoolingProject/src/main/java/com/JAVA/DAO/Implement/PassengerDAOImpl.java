@@ -51,4 +51,13 @@ public class PassengerDAOImpl implements PassengerDAO {
             throw new DAOException("Error finding passenger by user ID: " + userId, e);
         }
     }
+    
+    public long countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM Passenger"; 
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            rs.next();
+            return rs.getLong(1);
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 }

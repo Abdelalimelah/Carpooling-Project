@@ -17,5 +17,5 @@ public interface BookingDAO {
 	 public void markTripAsCompleted(int tripId) throws DAOException;
 	 public boolean tripIsCompleted(int tripId) throws DAOException;
 	 public BookingBean findById(int id) throws DAOException;
-	  
+	 
 }

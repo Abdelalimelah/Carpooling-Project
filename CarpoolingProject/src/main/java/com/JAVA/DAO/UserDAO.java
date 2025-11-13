@@ -11,5 +11,4 @@ public interface UserDAO {
 	public UserBean findById(int id) throws DAOException;
 	public boolean update(UserBean user) throws DAOException;
 	public boolean updatePassword(int userId, String hashedPassword) throws DAOException;
-	 
 }

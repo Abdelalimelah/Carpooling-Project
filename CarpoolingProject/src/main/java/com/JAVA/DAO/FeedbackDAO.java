@@ -11,5 +11,4 @@ public interface FeedbackDAO {
 	 public boolean existsByAuthorAndTargetAndTrip(int authorId, int targetId, int tripId) throws DAOException;
 	 public double getAverageRatingForTarget(int targetId, String feedbackType) throws DAOException;
 	 public List<FeedbackBean> findByTargetAndType(int targetId, String feedbackType) throws DAOException;
-	
 }

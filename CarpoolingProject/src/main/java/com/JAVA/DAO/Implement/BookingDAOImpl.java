@@ -158,5 +158,6 @@ public class BookingDAOImpl implements BookingDAO {
             throw new DAOException("Error finding booking by ID: " + id, e);
         }
         return null;
-    }
+    } 
+
 }

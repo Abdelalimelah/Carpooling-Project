@@ -1,7 +1,4 @@
 package com.JAVA.Servlet;
-import javax.servlet.*; 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
 
@@ -9,6 +6,14 @@ import com.JAVA.DAO.CarDAO;
 import com.JAVA.DAO.Implement.CarDAOImpl;
 import com.JAVA.DAO.DriverDAO;
 import com.JAVA.DAO.Implement.DriverDAOImpl;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import com.JAVA.Beans.CarBean;
 import com.JAVA.Beans.UserBean;
 import com.JAVA.DAO.Factory.DAOFactory;

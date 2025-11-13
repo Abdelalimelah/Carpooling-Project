@@ -59,4 +59,13 @@ public class DriverDAOImpl implements DriverDAO {
             throw new DAOException("Error finding user ID by driver ID", e);
         }
     }
+    
+    public long countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM Driver";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            rs.next();
+            return rs.getLong(1);
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 }
