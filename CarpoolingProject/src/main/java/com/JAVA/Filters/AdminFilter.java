@@ -1,8 +1,8 @@
 package com.JAVA.Filters;
 
-import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.http.*;
+import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.*;
 import java.io.IOException;
 
 import com.JAVA.Beans.UserBean;
