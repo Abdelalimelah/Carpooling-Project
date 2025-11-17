@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -159,5 +160,100 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return null;
     } 
+    
+    @Override
+    public int countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM Booking";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 
+    @Override
+    public int countByStatus(String status) throws DAOException {
+        String sql = "SELECT COUNT(*) FROM Booking WHERE status = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public java.math.BigDecimal sumCompletedEarnings() throws DAOException {
+        String sql = """
+            SELECT COALESCE(SUM(t.price), 0)
+            FROM Booking b
+            JOIN Trip t ON t.id = b.trip_id
+            WHERE b.status = 'COMPLETED'
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getBigDecimal(1) : java.math.BigDecimal.ZERO;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+    
+    @Override
+    public int countFiltered(Integer tripId, Integer passengerId, String status) throws DAOException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Booking b WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (tripId != null) { sql.append(" AND b.trip_id = ?"); params.add(tripId); }
+        if (passengerId != null) { sql.append(" AND b.passenger_id = ?"); params.add(passengerId); }
+        if (status != null) { sql.append(" AND b.status = ?"); params.add(status); }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public List<BookingBean> findPagedFiltered(Integer tripId, Integer passengerId, String status,
+                                               int offset, int limit) throws DAOException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT b.id, b.trip_id, b.passenger_id, b.status, b.booking_date " +
+                "FROM Booking b WHERE 1=1"
+        );
+        List<Object> params = new ArrayList<>();
+
+        if (tripId != null) { sql.append(" AND b.trip_id = ?"); params.add(tripId); }
+        if (passengerId != null) { sql.append(" AND b.passenger_id = ?"); params.add(passengerId); }
+        if (status != null) { sql.append(" AND b.status = ?"); params.add(status); }
+
+        sql.append(" ORDER BY b.id DESC LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
+            List<BookingBean> list = new ArrayList<>();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BookingBean b = new BookingBean();
+                    b.setId(rs.getInt("id"));
+                    b.setTripId(rs.getInt("trip_id"));
+                    b.setPassengerId(rs.getInt("passenger_id"));
+                    b.setStatus(rs.getString("status"));
+                    Timestamp ts = rs.getTimestamp("booking_date");
+                    if (ts != null) b.setBookingDate(ts.toLocalDateTime());
+                    list.add(b);
+                }
+            }
+            return list;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public boolean deleteById(int id) throws DAOException {
+        String sql = "DELETE FROM Booking WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 }

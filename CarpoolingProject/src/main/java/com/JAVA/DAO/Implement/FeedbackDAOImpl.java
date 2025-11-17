@@ -84,5 +84,86 @@ public class FeedbackDAOImpl implements FeedbackDAO {
         }
         return feedbacks;
     }
+    
+    @Override
+    public int countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM FeedBack";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 
+ // com.JAVA.DAO.Implement.FeedbackDAOImpl
+    @Override
+    public int countFiltered(String type, Integer authorId, Integer targetId, Integer minRating) throws DAOException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM FeedBack WHERE 1=1");
+        java.util.List<Object> params = new java.util.ArrayList<>();
+
+        if (type != null) { sql.append(" AND feedback_type = ?"); params.add(type); }
+        if (authorId != null) { sql.append(" AND author_id = ?"); params.add(authorId); }
+        if (targetId != null) { sql.append(" AND target_id = ?"); params.add(targetId); }
+        if (minRating != null) { sql.append(" AND rating >= ?"); params.add(minRating); }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int i = 1;
+            for (Object p : params) ps.setObject(i++, p);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public java.util.List<com.JAVA.Beans.FeedbackBean> findPagedFiltered(
+            String type, Integer authorId, Integer targetId, Integer minRating,
+            int offset, int limit) throws DAOException {
+
+        StringBuilder sql = new StringBuilder(
+            "SELECT id, rating, comment, date_time, author_id, target_id, feedback_type, trip_id " +
+            "FROM FeedBack WHERE 1=1"
+        );
+        java.util.List<Object> params = new java.util.ArrayList<>();
+
+        if (type != null) { sql.append(" AND feedback_type = ?"); params.add(type); }
+        if (authorId != null) { sql.append(" AND author_id = ?"); params.add(authorId); }
+        if (targetId != null) { sql.append(" AND target_id = ?"); params.add(targetId); }
+        if (minRating != null) { sql.append(" AND rating >= ?"); params.add(minRating); }
+
+        sql.append(" ORDER BY date_time DESC LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
+        java.util.List<com.JAVA.Beans.FeedbackBean> list = new java.util.ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int i = 1;
+            for (Object p : params) ps.setObject(i++, p);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    com.JAVA.Beans.FeedbackBean fb = new com.JAVA.Beans.FeedbackBean();
+                    fb.setId(rs.getInt("id"));
+                    fb.setRating(rs.getInt("rating"));
+                    fb.setComment(rs.getString("comment"));
+                    fb.setDateTime(rs.getTimestamp("date_time").toLocalDateTime());
+                    fb.setAuthorId(rs.getInt("author_id"));
+                    fb.setTargetId(rs.getInt("target_id"));
+                    fb.setFeedbackType(rs.getString("feedback_type"));
+                    fb.setTripId(rs.getInt("trip_id"));
+                    list.add(fb);
+                }
+            }
+            return list;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+    
+    @Override
+    public boolean delete(int id) throws DAOException {
+        String sql = "DELETE FROM Feedback WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 }

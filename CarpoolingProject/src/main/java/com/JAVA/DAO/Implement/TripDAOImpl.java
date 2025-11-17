@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class TripDAOImpl implements TripDAO {
     
@@ -172,4 +173,152 @@ public class TripDAOImpl implements TripDAO {
         return trips;
     }
     
+    @Override
+    public int countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM Trip";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+    
+    @Override
+    public int countFiltered(String status, String dateStr) throws DAOException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) AS c FROM Trip t");
+        java.util.List<String> cond = new java.util.ArrayList<>();
+        java.util.List<Object> params = new java.util.ArrayList<>();
+
+        // status filter
+        if (status != null) {
+            switch (status) {
+                case "COMPLETED":
+                    cond.add("EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED')");
+                    break;
+                case "UPCOMING":
+                    cond.add("t.date_time >= NOW()");
+                    cond.add("NOT EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED')");
+                    break;
+                case "PASSED":
+                    cond.add("t.date_time < NOW()");
+                    cond.add("NOT EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED')");
+                    break;
+            }
+        }
+
+        // date filter
+        if (dateStr != null) {
+            cond.add("DATE(t.date_time) = ?");
+            params.add(dateStr);
+        }
+
+        if (!cond.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", cond));
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            for (Object p : params) {
+                ps.setObject(idx++, p);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("c") : 0;
+            }
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public java.util.List<com.JAVA.Beans.TripBean> findPagedFiltered(
+            String status, String dateStr, int offset, int limit) throws DAOException {
+
+        StringBuilder sql = new StringBuilder(
+            "SELECT t.id, t.departure_city, t.arrival_city, t.date_time, " +
+            "       t.price, t.seats_available, t.driver_id, t.car_id, t.created_at " +
+            "FROM Trip t");
+        java.util.List<String> cond = new java.util.ArrayList<>();
+        java.util.List<Object> params = new java.util.ArrayList<>();
+
+        if (status != null) {
+            switch (status) {
+                case "COMPLETED":
+                    cond.add("EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED')");
+                    break;
+                case "UPCOMING":
+                    cond.add("t.date_time >= NOW()");
+                    cond.add("NOT EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED')");
+                    break;
+                case "PASSED":
+                    cond.add("t.date_time < NOW()");
+                    cond.add("NOT EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED')");
+                    break;
+            }
+        }
+
+        if (dateStr != null) {
+            cond.add("DATE(t.date_time) = ?");
+            params.add(dateStr);
+        }
+
+        if (!cond.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", cond));
+        }
+        sql.append(" ORDER BY t.date_time DESC LIMIT ? OFFSET ?");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            for (Object p : params) {
+                ps.setObject(idx++, p);
+            }
+            ps.setInt(idx++, limit);
+            ps.setInt(idx, offset);
+
+            java.util.List<com.JAVA.Beans.TripBean> list = new java.util.ArrayList<>();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    com.JAVA.Beans.TripBean t = new com.JAVA.Beans.TripBean();
+                    t.setId(rs.getInt("id"));
+                    t.setDepartureCity(rs.getString("departure_city"));
+                    t.setArrivalCity(rs.getString("arrival_city"));
+                    t.setDateTime(rs.getTimestamp("date_time").toLocalDateTime());
+                    t.setPrice(rs.getBigDecimal("price"));
+                    t.setSeatsAvailable(rs.getInt("seats_available"));
+                    t.setDriverId(rs.getInt("driver_id"));
+                    t.setCarId(rs.getInt("car_id"));
+                    list.add(t);
+                }
+            }
+            return list;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public java.util.Map<Integer,String> findDerivedStatusForTripIds(
+            java.util.Collection<Integer> tripIds) throws DAOException {
+        java.util.Map<Integer,String> out = new java.util.HashMap<>();
+        if (tripIds == null || tripIds.isEmpty()) return out;
+
+        StringBuilder sb = new StringBuilder(
+            "SELECT t.id, " +
+            " CASE " +
+            "  WHEN EXISTS (SELECT 1 FROM Booking b WHERE b.trip_id = t.id AND b.status = 'COMPLETED') THEN 'COMPLETED' " +
+            "  WHEN t.date_time < NOW() THEN 'PASSED' " +
+            "  ELSE 'UPCOMING' " +
+            " END AS derived_status " +
+            "FROM Trip t WHERE t.id IN (");
+
+        StringJoiner ph = new StringJoiner(",");
+        for (int i = 0; i < tripIds.size(); i++) ph.add("?");
+        sb.append(ph).append(")");
+
+        try (PreparedStatement ps = connection.prepareStatement(sb.toString())) {
+            int idx = 1;
+            for (Integer id : tripIds) ps.setInt(idx++, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    out.put(rs.getInt("id"), rs.getString("derived_status"));
+                }
+            }
+            return out;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 }

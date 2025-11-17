@@ -1,6 +1,8 @@
 package com.JAVA.DAO.Implement;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.JAVA.Beans.UserBean;
 import com.JAVA.DAO.UserDAO;
@@ -71,7 +73,7 @@ public class UserDAOImpl implements UserDAO {
     }
     
     public UserBean findById(int id) throws DAOException {
-        String sql = "SELECT id, email, first_name, last_name, phone_number, role, created_at, updated_at FROM `user` WHERE id = ?";
+        String sql = "SELECT id, email, first_name, last_name, phone_number, role FROM `user` WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -91,16 +93,23 @@ public class UserDAOImpl implements UserDAO {
         return null;
     }
     
-    public boolean update(UserBean user) throws DAOException {
-        String sql = "UPDATE `user` SET first_name = ?, last_name = ?, phone_number = ? WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, user.getFirstName());
-            stmt.setString(2, user.getLastName());
-            stmt.setString(3, user.getPhoneNumber());
-            stmt.setInt(4, user.getId());
-            return stmt.executeUpdate() > 0;
+    @Override
+    public boolean update(UserBean u) throws DAOException {
+        final String sql =
+            "UPDATE `User` " +
+            "SET email = ?, first_name = ?, last_name = ?, phone_number = ?, role = ? " +
+            "WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, u.getEmail());
+            ps.setString(2, u.getFirstName());
+            ps.setString(3, u.getLastName());
+            ps.setString(4, u.getPhoneNumber());
+            ps.setString(5, u.getRole());      
+            ps.setInt(6, u.getId());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new DAOException("Error updating user with ID: " + user.getId(), e);
+            throw new DAOException(e);
         }
     }
 
@@ -114,5 +123,52 @@ public class UserDAOImpl implements UserDAO {
             throw new DAOException("Error updating password for user ID: " + userId, e);
         }
     }
+    
+    
+    @Override
+    public int countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM User";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 
+    @Override
+    public boolean deleteById(int userId) throws DAOException {
+        String sql = "DELETE FROM User WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+    
+    @Override
+    public List<UserBean> findPaged(int offset, int limit) throws DAOException {
+        String sql = """
+            SELECT id, email, first_name, last_name, phone_number, role, created_at
+            FROM User
+            ORDER BY id ASC
+            LIMIT ? OFFSET ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<UserBean> list = new ArrayList<>();
+                while (rs.next()) {
+                    UserBean u = new UserBean();
+                    u.setId(rs.getInt("id"));
+                    u.setEmail(rs.getString("email"));
+                    u.setFirstName(rs.getString("first_name"));
+                    u.setLastName(rs.getString("last_name"));
+                    u.setPhoneNumber(rs.getString("phone_number"));
+                    u.setRole(rs.getString("role"));
+                    u.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    list.add(u);
+                }
+                return list;
+            }
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
 }
