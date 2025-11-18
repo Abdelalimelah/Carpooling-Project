@@ -1,31 +1,38 @@
 package com.JAVA.Filters;
 
-import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.http.*;
+
 import java.io.IOException;
 
 import com.JAVA.Beans.UserBean;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebFilter(urlPatterns = {"/admin/*"})
 public class AdminFilter implements Filter {
 	
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
+    	HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        HttpSession session = httpRequest.getSession(false);
 
-        HttpSession session = req.getSession(false);
-        UserBean user = (session != null) ? (UserBean) session.getAttribute("user") : null;
+        if (session != null) {
+            UserBean user = (UserBean) session.getAttribute("user");
+            if (user != null && "ADMIN".equals(user.getRole())) {
+                chain.doFilter(request, response);
+                return;
+            }
+        }
 
-        if (user == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-        if (user.getRole() == null || !"ADMIN".equalsIgnoreCase(user.getRole())) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Admins only.");
-            return;
-        }
-        chain.doFilter(request, response);
+        String contextPath = httpRequest.getContextPath();
+        httpResponse.sendRedirect(contextPath + "/login?error=admin_access_required");
     }
 }

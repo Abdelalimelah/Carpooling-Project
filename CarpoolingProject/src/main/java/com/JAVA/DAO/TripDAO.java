@@ -1,6 +1,5 @@
 package com.JAVA.DAO;
 
-import java.util.Date;
 import java.util.List;
 
 import com.JAVA.Beans.TripBean;
@@ -18,5 +17,9 @@ public interface TripDAO {
 		        String departureCity, 
 		        String arrivalCity, 
 		        String dateStr) throws DAOException;
+	 public int countAll() throws DAOException;
+     int countFiltered(String status, String dateStr) throws DAOException;
+     List<TripBean> findPagedFiltered(String status, String dateStr, int offset, int limit) throws DAOException;
+     java.util.Map<Integer,String> findDerivedStatusForTripIds(java.util.Collection<Integer> tripIds) throws DAOException;
 	 
 }

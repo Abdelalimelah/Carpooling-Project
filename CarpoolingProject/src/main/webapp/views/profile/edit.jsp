@@ -13,7 +13,6 @@
         <!-- Header -->
         <header class="profile-header">
             <div class="header-content">
-                <!-- Logo -->
                 <div class="logo">
                     <div class="logo-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -40,13 +39,11 @@
         <!-- Main Content -->
         <main class="profile-main">
             <div class="container">
-                <!-- Page Header -->
                 <div class="page-header">
                     <h1>Edit Profile</h1>
                     <p>Update your personal information</p>
                 </div>
 
-                <!-- Edit Form -->
                 <div class="form-section">
                     <c:if test="${not empty errorMessage}">
                         <div class="message error">
@@ -55,6 +52,10 @@
                     </c:if>
 
                     <form class="profile-form" action="${pageContext.request.contextPath}/profile" method="post">
+                        <!-- Hidden fields to keep identity/role intact -->
+                        <input type="hidden" name="id" value="${user.id}"/>
+                        <input type="hidden" name="role" value="${user.role}"/>
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="firstName">First Name</label>

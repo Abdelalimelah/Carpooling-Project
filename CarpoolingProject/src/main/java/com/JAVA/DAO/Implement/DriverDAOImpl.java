@@ -60,12 +60,51 @@ public class DriverDAOImpl implements DriverDAO {
         }
     }
     
-    public long countAll() throws DAOException {
+    @Override
+    public int countAll() throws DAOException {
         String sql = "SELECT COUNT(*) FROM Driver";
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            rs.next();
-            return rs.getLong(1);
+            return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) { throw new DAOException(e); }
     }
+    
+    @Override
+    public boolean deleteByUserId(int userId) throws DAOException {
+        final String sql = "DELETE FROM Driver WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public boolean update(DriverBean driver) throws DAOException {
+        final String sql = "UPDATE Driver SET licence_number = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, driver.getLicenceNumber());
+            ps.setInt(2, driver.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+    
+    @Override
+	public DriverBean findById(int id) throws DAOException {
+    String sql = "SELECT * FROM driver WHERE id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+        	DriverBean driver = new DriverBean();
+        	driver.setId(rs.getInt("id"));
+        	driver.setUserId(rs.getInt("user_id"));
+        	driver.setLicenceNumber(rs.getString("licence_number"));
+            return driver;
+        }
+    } catch (SQLException e) {
+        throw new DAOException("Error finding driver by ID: " + id, e);
+    }
+    return null;
+}
+    
 }

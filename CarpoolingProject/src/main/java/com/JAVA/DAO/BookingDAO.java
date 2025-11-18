@@ -17,5 +17,16 @@ public interface BookingDAO {
 	 public void markTripAsCompleted(int tripId) throws DAOException;
 	 public boolean tripIsCompleted(int tripId) throws DAOException;
 	 public BookingBean findById(int id) throws DAOException;
-	 
+	 int countAll() throws DAOException;
+	 int countByStatus(String status) throws DAOException;
+	 java.math.BigDecimal sumCompletedEarnings() throws DAOException;
+	 int countFiltered(Integer tripId, Integer passengerId, String status) throws DAOException;
+	 java.util.List<com.JAVA.Beans.BookingBean> findPagedFiltered(
+	         Integer tripId,
+	         Integer passengerId,
+	         String status,
+	         int offset,
+	         int limit
+	 ) throws DAOException;
+	 boolean deleteById(int id) throws DAOException;
 }

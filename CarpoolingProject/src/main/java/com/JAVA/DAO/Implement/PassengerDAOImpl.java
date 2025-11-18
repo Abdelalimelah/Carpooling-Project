@@ -1,6 +1,8 @@
 package com.JAVA.DAO.Implement;
 
-import java.sql.*; 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.JAVA.Beans.PassengerBean;
 import com.JAVA.DAO.PassengerDAO;
@@ -52,12 +54,76 @@ public class PassengerDAOImpl implements PassengerDAO {
         }
     }
     
-    public long countAll() throws DAOException {
-        String sql = "SELECT COUNT(*) FROM Passenger"; 
+    @Override
+    public int countAll() throws DAOException {
+        String sql = "SELECT COUNT(*) FROM Passenger";
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            rs.next();
-            return rs.getLong(1);
+            return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) { throw new DAOException(e); }
     }
+
+    @Override
+    public List<PassengerBean> findAll() throws DAOException {
+        String sql = """
+            SELECT p.id AS passenger_id, p.user_id,
+                   u.email, u.first_name, u.last_name, u.phone_number, u.role, u.created_at
+            FROM Passenger p
+            JOIN User u ON u.id = p.user_id
+            ORDER BY p.id DESC
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<PassengerBean> list = new ArrayList<>();
+            while (rs.next()) {
+                PassengerBean pBean = new PassengerBean();
+                pBean.setId(rs.getInt("passenger_id"));
+                pBean.setUserId(rs.getInt("user_id"));
+                // if your bean has these (optional)
+                //pBean.setEmail(rs.getString("email"));
+                //pBean.setFirstName(rs.getString("first_name"));
+                //pBean.setLastName(rs.getString("last_name"));
+                //pBean.setPhoneNumber(rs.getString("phone_number"));
+                return list.add(pBean) ? list : list; // add
+            }
+            return list;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
+    @Override
+    public PassengerBean findById(int id) throws DAOException {
+        String sql = """
+            SELECT p.id AS passenger_id, p.user_id,
+                   u.email, u.first_name, u.last_name, u.phone_number, u.role, u.created_at
+            FROM Passenger p
+            JOIN User u ON u.id = p.user_id
+            WHERE p.id = ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PassengerBean pBean = new PassengerBean();
+                    pBean.setId(rs.getInt("passenger_id"));
+                    pBean.setUserId(rs.getInt("user_id"));
+                    //pBean.setEmail(rs.getString("email"));
+                    //pBean.setFirstName(rs.getString("first_name"));
+                    //pBean.setLastName(rs.getString("last_name"));
+                    //pBean.setPhoneNumber(rs.getString("phone_number"));
+                    return pBean;
+                }
+                return null;
+            }
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+    
+    @Override
+    public boolean deleteByUserId(int userId) throws DAOException {
+        final String sql = "DELETE FROM Passenger WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { throw new DAOException(e); }
+    }
+
 }

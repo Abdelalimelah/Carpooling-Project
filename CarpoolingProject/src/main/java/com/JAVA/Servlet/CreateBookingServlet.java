@@ -54,9 +54,6 @@ public class CreateBookingServlet extends HttpServlet {
             booking.setPassengerId(passengerId);
             booking.setStatus("PENDING"); 
             
-            if (!bookingDAO.create(booking)) {
-                throw new Exception("Failed to create booking");
-            }
             
             DriverDAO driverDAO = new DriverDAOImpl(conn);
             int driverUserId = driverDAO.findUserIdByDriverId(trip.getDriverId());
