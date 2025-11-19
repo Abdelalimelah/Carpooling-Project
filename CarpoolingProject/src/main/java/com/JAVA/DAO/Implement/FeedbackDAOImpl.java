@@ -46,18 +46,20 @@ public class FeedbackDAOImpl implements FeedbackDAO {
     }
 
     public double getAverageRatingForTarget(int targetId, String feedbackType) throws DAOException {
-        String sql = "SELECT COALESCE(AVG(rating), 0) FROM FeedBack WHERE target_id = ? AND feedback_type = ?";
+        String sql = "SELECT COALESCE(AVG(rating), 0) " +
+                     "FROM FeedBack " +
+                     "WHERE target_id = ? AND feedback_type = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, targetId);
+            stmt.setInt(1, targetId); 
             stmt.setString(2, feedbackType);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble(1);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getDouble(1);
             }
+            return 0.0;
         } catch (SQLException e) {
-            throw new DAOException("Error getting average rating for target: " + targetId + ", type: " + feedbackType, e);
+            throw new DAOException("Error getting average rating for target: " + targetId +
+                                   ", type: " + feedbackType, e);
         }
-        return 0.0;
     }
     
     public List<FeedbackBean> findByTargetAndType(int targetId, String feedbackType) throws DAOException {
@@ -94,7 +96,6 @@ public class FeedbackDAOImpl implements FeedbackDAO {
         } catch (SQLException e) { throw new DAOException(e); }
     }
 
- // com.JAVA.DAO.Implement.FeedbackDAOImpl
     @Override
     public int countFiltered(String type, Integer authorId, Integer targetId, Integer minRating) throws DAOException {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM FeedBack WHERE 1=1");

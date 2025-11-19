@@ -61,9 +61,10 @@ public class DriverDashServlet extends HttpServlet {
             
             int totalTrips = allTrips.size();
             BigDecimal totalEarnings = bookingDAO.calculateTotalEarningsByDriver(driverId);
-            
-            FeedbackDAO feedbackDAO = new FeedbackDAOImpl(conn);
-            double averageRating = feedbackDAO.getAverageRatingForTarget(driverId, "DRIVER");
+
+            FeedbackDAOImpl feedbackDAO = new FeedbackDAOImpl(conn);
+            double averageRating = feedbackDAO.getAverageRatingForTarget(user.getId(), "DRIVER");
+
             
             int unreadCount = 0;
             List<NotificationBean> notifications = new ArrayList<>();

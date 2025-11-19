@@ -20,6 +20,9 @@ public class FeedbackServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+        	HttpSession session = request.getSession(false);
+            UserBean user = (UserBean) session.getAttribute("user");
+        			
             String tripIdStr = request.getParameter("tripId");
             String targetIdStr = request.getParameter("targetId");
             String type = request.getParameter("type");
@@ -33,6 +36,7 @@ public class FeedbackServlet extends HttpServlet {
             int tripId = Integer.parseInt(tripIdStr);
             int targetId = Integer.parseInt(targetIdStr);
             
+            request.setAttribute("role", user.getRole());
             request.setAttribute("tripId", tripId);
             request.setAttribute("targetId", targetId);
             request.setAttribute("feedbackType", type);

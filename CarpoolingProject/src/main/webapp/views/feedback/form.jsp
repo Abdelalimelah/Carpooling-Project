@@ -100,10 +100,24 @@
                         </div>
 
                         <!-- Form Actions -->
-                        <div class="form-actions">
-                            <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                        </div>
+                        <c:set var="roleVal" value="${empty param.role ? (not empty user ? user.role : '') : param.role}" />
+						<c:choose>
+						  <c:when test="${roleVal == 'PASSENGER'}">
+						    <c:url var="cancelHref" value="/passenger/dashboard"/>
+						  </c:when>
+						  <c:when test="${roleVal == 'DRIVER'}">
+						    <c:url var="cancelHref" value="/driver/dashboard"/>
+						  </c:when>
+						  <c:otherwise>
+						    <c:url var="cancelHref" value="/dashboard"/>
+						  </c:otherwise>
+						</c:choose>
+						
+						<!-- Form Actions -->
+						<div class="form-actions">
+						  <a href="${cancelHref}" class="btn btn-outline">Cancel</a>
+						  <button type="submit" class="btn btn-primary">Submit Feedback</button>
+						</div>
                     </form>
                 </div>
             </div>
