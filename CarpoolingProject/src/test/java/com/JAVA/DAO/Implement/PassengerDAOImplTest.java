@@ -49,7 +49,7 @@ class PassengerDAOImplTest {
 
     private int insertUser() throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO User (email, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO \"User\" (email, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, "test@mail.com");
             ps.setString(2, "First");

@@ -16,7 +16,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public boolean register(UserBean user) throws DAOException {
-        String sql = "INSERT INTO `user` (email, password_hash, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO \"User\" (email, password_hash, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getPasswordHash()); 
