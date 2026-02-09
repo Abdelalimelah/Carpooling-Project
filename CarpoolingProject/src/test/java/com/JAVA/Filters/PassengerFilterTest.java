@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
-import com.JAVA.Beans.User; // IMPORT
+import com.JAVA.Beans.UserBean; // IMPORT
 
 import static org.mockito.Mockito.*;
 
