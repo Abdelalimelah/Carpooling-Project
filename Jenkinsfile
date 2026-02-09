@@ -11,14 +11,18 @@ pipeline {
             }
         }
         stage('Build & Test') { // [cite: 24, 25]
-            steps {
-                bat 'mvn clean package' // Compile et lance les tests unitaires
+            dir('CarpoolingProject') {
+                steps {
+                    bat 'mvn clean package' // Compile et lance les tests unitaires
+                }
             }
         }
         stage('SonarQube Analysis') { // [cite: 27]
             steps {
-                withSonarQubeEnv('SonarQube-Server') { // Nom configuré dans Jenkins
-                    bat 'mvn sonar:sonar'
+                dir('CarpoolingProject') {
+                    withSonarQubeEnv('SonarQube-Server') { // Nom configuré dans Jenkins
+                        bat 'mvn sonar:sonar'
+                    }
                 }
             }
         }
