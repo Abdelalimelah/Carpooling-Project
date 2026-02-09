@@ -14,7 +14,7 @@ pipeline {
             
             steps {
                 dir('CarpoolingProject') {
-                    bat 'mvn clean package' // Compile et lance les tests unitaires
+                    bat 'mvn clean verify' // Compile et lance les tests unitaires
                 }
             }
         }

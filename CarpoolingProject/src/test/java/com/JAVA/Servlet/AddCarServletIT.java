@@ -12,9 +12,8 @@ class AddCarServletIT {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("POST");
         AddCarServlet servlet = new AddCarServlet();
-        servlet.service(request, response);
+        servlet.doPost(request, response);
         verify(response, atLeastOnce()).sendRedirect(anyString());
     }
 }
