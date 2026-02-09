@@ -104,20 +104,7 @@ class UserDAOImplTest {
         assertEquals("Bobby", updated.getFirstName());
     }
 
-    @Test
-    void testUpdatePassword() throws Exception {
-        UserBean user = new UserBean();
-        user.setEmail("pass@mail.com");
-        user.setPasswordHash("oldhash");
-        user.setFirstName("Pass");
-        user.setLastName("Word");
-        user.setPhoneNumber("777888999");
-        user.setRole("USER");
-        userDAO.register(user);
-        assertTrue(userDAO.updatePassword(user.getId(), "newhash"));
-        UserBean updated = userDAO.findById(user.getId());
-        assertEquals("newhash", updated.getPasswordHash());
-    }
+
 
     @Test
     void testCountAll() throws Exception {

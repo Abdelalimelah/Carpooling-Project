@@ -18,7 +18,7 @@ class PassengerFilterTest {
         FilterChain chain = mock(FilterChain.class);
 
         UserBean passengerUser = mock(UserBean.class);
-        when(passengerUser.getRole()).thenReturn("passenger");
+        when(passengerUser.getRole()).thenReturn("PASSENGER");
 
         when(request.getSession(false)).thenReturn(session);
         when(request.getSession()).thenReturn(session); // AJOUT IMPORTANT

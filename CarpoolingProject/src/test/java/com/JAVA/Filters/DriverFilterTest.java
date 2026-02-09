@@ -18,7 +18,7 @@ class DriverFilterTest {
         FilterChain chain = mock(FilterChain.class);
 
         UserBean driverUser = mock(UserBean.class);
-        when(driverUser.getRole()).thenReturn("driver");
+        when(driverUser.getRole()).thenReturn("DRIVER");
 
         when(request.getSession(false)).thenReturn(session);
         when(request.getSession()).thenReturn(session); // AJOUT IMPORTANT

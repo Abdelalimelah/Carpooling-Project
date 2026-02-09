@@ -18,7 +18,7 @@ class AdminFilterTest {
         FilterChain chain = mock(FilterChain.class);
 
         UserBean adminUser = mock(UserBean.class);
-        when(adminUser.getRole()).thenReturn("admin");
+        when(adminUser.getRole()).thenReturn("ADMIN");
 
         // CORRECTION : On mock les deux cas possibles
         when(request.getSession(false)).thenReturn(session);
