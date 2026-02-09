@@ -11,8 +11,9 @@ pipeline {
             }
         }
         stage('Build & Test') { // [cite: 24, 25]
-            dir('CarpoolingProject') {
-                steps {
+            
+            steps {
+                dir('CarpoolingProject') {
                     bat 'mvn clean package' // Compile et lance les tests unitaires
                 }
             }
