@@ -1,20 +1,39 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class AdminUserServletIT {
+class AdminUserServletIT extends BaseServletTest {
+
     @Test
-    void testAdminUser() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("GET");
+    void editUser_forwards() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("edit");
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.DRIVER_USER_ID));
+
         AdminUserServlet servlet = new AdminUserServlet();
-        servlet.service(request, response);
-        verify(request, atLeastOnce()).getRequestDispatcher(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
+    }
+
+    @Test
+    void updateUser_roleChange_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("update");
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.PASSENGER_USER_ID));
+        when(ctx.req.getParameter("email")).thenReturn("pass@carpool.com");
+        when(ctx.req.getParameter("firstName")).thenReturn("Passenger");
+        when(ctx.req.getParameter("lastName")).thenReturn("One");
+        when(ctx.req.getParameter("phoneNumber")).thenReturn("222");
+        when(ctx.req.getParameter("role")).thenReturn("DRIVER");
+        when(ctx.req.getParameter("licenceNumber")).thenReturn("LIC-NEW");
+
+        AdminUserServlet servlet = new AdminUserServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
     }
 }

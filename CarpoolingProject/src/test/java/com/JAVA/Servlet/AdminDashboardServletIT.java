@@ -1,20 +1,17 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class AdminDashboardServletIT {
+class AdminDashboardServletIT extends BaseServletTest {
+
     @Test
-    void testAdminDashboard() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("GET");
+    void loadsDashboard() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
         AdminDashboardServlet servlet = new AdminDashboardServlet();
-        servlet.service(request, response);
-        verify(request, atLeastOnce()).getRequestDispatcher(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
     }
 }

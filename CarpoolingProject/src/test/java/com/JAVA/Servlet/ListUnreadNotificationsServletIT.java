@@ -1,20 +1,26 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
-import static org.mockito.Mockito.*;
 
-class ListUnreadNotificationsServletIT {
+import java.io.StringWriter;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
+class ListUnreadNotificationsServletIT extends BaseServletTest {
+
     @Test
-    void testListUnreadNotifications() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("GET");
+    void returnsJson() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("limit")).thenReturn("10");
+        when(ctx.req.getParameter("offset")).thenReturn("0");
+
+        StringWriter sw = attachWriter(ctx.resp);
+
         ListUnreadNotificationsServlet servlet = new ListUnreadNotificationsServlet();
-        servlet.service(request, response);
-        verify(request, atLeastOnce()).getRequestDispatcher(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+
+        assertTrue(sw.toString().contains("unreadCount"));
     }
 }

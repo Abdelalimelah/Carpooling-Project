@@ -1,20 +1,21 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class AdminFeedbackServletIT {
+class AdminFeedbackServletIT extends BaseServletTest {
+
     @Test
-    void testAdminFeedback() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("GET");
+    void deleteFeedback_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("delete");
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.FEEDBACK_ID));
+
         AdminFeedbackServlet servlet = new AdminFeedbackServlet();
-        servlet.service(request, response);
-        verify(request, atLeastOnce()).getRequestDispatcher(anyString());
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
     }
 }

@@ -1,0 +1,17 @@
+-------------------------------------------------------------------------------
+Test set: com.JAVA.Servlet.AddCarServletIT
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.118 s <<< FAILURE! -- in com.JAVA.Servlet.AddCarServletIT
+com.JAVA.Servlet.AddCarServletIT.doPost_valid_createsCar -- Time elapsed: 0.095 s <<< FAILURE!
+Wanted but not invoked:
+httpServletResponse.sendRedirect(
+    "/app/driver/dashboard?carAdded=1"
+);
+-> at com.JAVA.Servlet.AddCarServletIT.doPost_valid_createsCar(AddCarServletIT.java:28)
+Actually, there were zero interactions with this mock.
+
+	at com.JAVA.Servlet.AddCarServletIT.doPost_valid_createsCar(AddCarServletIT.java:28)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

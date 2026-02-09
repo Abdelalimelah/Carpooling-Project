@@ -1,0 +1,22 @@
+-------------------------------------------------------------------------------
+Test set: com.JAVA.Servlet.MarkAllReadServletIT
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.013 s <<< FAILURE! -- in com.JAVA.Servlet.MarkAllReadServletIT
+com.JAVA.Servlet.MarkAllReadServletIT.markAllRead_setsStatus -- Time elapsed: 0.011 s <<< FAILURE!
+Wanted but not invoked:
+httpServletResponse.setStatus(204);
+-> at com.JAVA.Servlet.MarkAllReadServletIT.markAllRead_setsStatus(MarkAllReadServletIT.java:18)
+
+However, there was exactly 1 interaction with this mock:
+httpServletResponse.sendError(
+    500,
+    "Failed to mark as read"
+);
+-> at com.JAVA.Servlet.MarkAllReadServlet.doPost(MarkAllReadServlet.java:35)
+
+
+	at com.JAVA.Servlet.MarkAllReadServletIT.markAllRead_setsStatus(MarkAllReadServletIT.java:18)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

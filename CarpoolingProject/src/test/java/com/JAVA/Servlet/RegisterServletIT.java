@@ -1,20 +1,26 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class RegisterServletIT {
+class RegisterServletIT extends BaseServletTest {
+
     @Test
-    void testRegister() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("POST");
+    void registerPassenger_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.PASSENGER_USER_ID, "PASSENGER"));
+        when(ctx.req.getParameter("role")).thenReturn("PASSENGER");
+        when(ctx.req.getParameter("email")).thenReturn("newpass@carpool.com");
+        when(ctx.req.getParameter("password")).thenReturn("secret1");
+        when(ctx.req.getParameter("confirmPassword")).thenReturn("secret1");
+        when(ctx.req.getParameter("firstName")).thenReturn("New");
+        when(ctx.req.getParameter("lastName")).thenReturn("Pass");
+        when(ctx.req.getParameter("phoneNumber")).thenReturn("444");
+
         RegisterServlet servlet = new RegisterServlet();
-        servlet.service(request, response);
-        verify(response, atLeastOnce()).sendRedirect(anyString());
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect("login?registered=1");
     }
 }

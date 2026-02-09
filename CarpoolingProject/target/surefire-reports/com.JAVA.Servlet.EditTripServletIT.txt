@@ -1,0 +1,31 @@
+-------------------------------------------------------------------------------
+Test set: com.JAVA.Servlet.EditTripServletIT
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.027 s <<< FAILURE! -- in com.JAVA.Servlet.EditTripServletIT
+com.JAVA.Servlet.EditTripServletIT.doPost_valid_redirects -- Time elapsed: 0.016 s <<< FAILURE!
+Wanted but not invoked:
+httpServletResponse.sendRedirect(
+    "/app/driver/dashboard?tripUpdated=1"
+);
+-> at com.JAVA.Servlet.EditTripServletIT.doPost_valid_redirects(EditTripServletIT.java:35)
+Actually, there were zero interactions with this mock.
+
+	at com.JAVA.Servlet.EditTripServletIT.doPost_valid_redirects(EditTripServletIT.java:35)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.JAVA.Servlet.EditTripServletIT.doGet_forwards -- Time elapsed: 0.010 s <<< FAILURE!
+Wanted but not invoked:
+requestDispatcher.forward(
+    Mock for HttpServletRequest, hashCode: 2086260582,
+    Mock for HttpServletResponse, hashCode: 1807159909
+);
+-> at com.JAVA.Servlet.EditTripServletIT.doGet_forwards(EditTripServletIT.java:18)
+Actually, there were zero interactions with this mock.
+
+	at com.JAVA.Servlet.EditTripServletIT.doGet_forwards(EditTripServletIT.java:18)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

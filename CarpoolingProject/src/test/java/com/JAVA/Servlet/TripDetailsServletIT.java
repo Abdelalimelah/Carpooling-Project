@@ -1,20 +1,20 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class TripDetailsServletIT {
+class TripDetailsServletIT extends BaseServletTest {
+
     @Test
-    void testTripDetails() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("GET");
+    void tripDetails_forwards() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.TRIP_FUTURE_ID));
+
         TripDetailsServlet servlet = new TripDetailsServlet();
-        servlet.service(request, response);
-        verify(request, atLeastOnce()).getRequestDispatcher(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
     }
 }

@@ -1,23 +1,33 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class LoginServletIT {
+class LoginServletIT extends BaseServletTest {
+
     @Test
-    void testLoginSuccess() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getParameter("username")).thenReturn("user1");
-        when(request.getParameter("password")).thenReturn("pass1");
-        when(request.getSession()).thenReturn(session);
-        when(request.getMethod()).thenReturn("POST");
+    void validLogin_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("email")).thenReturn("driver@carpool.com");
+        when(ctx.req.getParameter("password")).thenReturn("driverpass");
+
         LoginServlet servlet = new LoginServlet();
-        servlet.service(request, response);
-        verify(session, atLeastOnce()).setAttribute(eq("user"), any());
-        verify(response, atLeastOnce()).sendRedirect(anyString());
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect("driver/dashboard");
+    }
+
+    @Test
+    void invalidLogin_forwards() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("email")).thenReturn("driver@carpool.com");
+        when(ctx.req.getParameter("password")).thenReturn("wrong");
+
+        LoginServlet servlet = new LoginServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
     }
 }

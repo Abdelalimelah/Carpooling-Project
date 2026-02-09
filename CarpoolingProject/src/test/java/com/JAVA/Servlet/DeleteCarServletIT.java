@@ -1,20 +1,20 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class DeleteCarServletIT {
+class DeleteCarServletIT extends BaseServletTest {
+
     @Test
-    void testDeleteCar() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("POST");
+    void deleteCar_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.CAR_ID));
+
         DeleteCarServlet servlet = new DeleteCarServlet();
-        servlet.service(request, response);
-        verify(response, atLeastOnce()).sendRedirect(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect("/app/driver/dashboard?carDeleted=1");
     }
 }

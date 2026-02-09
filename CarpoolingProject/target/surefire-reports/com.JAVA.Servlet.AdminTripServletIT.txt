@@ -1,0 +1,18 @@
+-------------------------------------------------------------------------------
+Test set: com.JAVA.Servlet.AdminTripServletIT
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.044 s <<< FAILURE! -- in com.JAVA.Servlet.AdminTripServletIT
+com.JAVA.Servlet.AdminTripServletIT.viewTrip_forwards -- Time elapsed: 0.025 s <<< FAILURE!
+Wanted but not invoked:
+requestDispatcher.forward(
+    Mock for HttpServletRequest, hashCode: 210055609,
+    Mock for HttpServletResponse, hashCode: 987484216
+);
+-> at com.JAVA.Servlet.AdminTripServletIT.viewTrip_forwards(AdminTripServletIT.java:19)
+Actually, there were zero interactions with this mock.
+
+	at com.JAVA.Servlet.AdminTripServletIT.viewTrip_forwards(AdminTripServletIT.java:19)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

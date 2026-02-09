@@ -1,20 +1,17 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class DriverDashServletIT {
+class DriverDashServletIT extends BaseServletTest {
+
     @Test
-    void testDriverDashboard() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("GET");
+    void dashboard_forwards() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
         DriverDashServlet servlet = new DriverDashServlet();
-        servlet.service(request, response);
-        verify(request, atLeastOnce()).getRequestDispatcher(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
     }
 }

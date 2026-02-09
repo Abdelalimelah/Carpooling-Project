@@ -1,20 +1,20 @@
 package com.JAVA.Servlet;
 
+import com.JAVA.TestUtils.TestDb;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import jakarta.servlet.http.*;
+
 import static org.mockito.Mockito.*;
 
-class CreateBookingServletIT {
+class CreateBookingServletIT extends BaseServletTest {
+
     @Test
-    void testCreateBooking() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        HttpSession session = mock(HttpSession.class);
-        when(request.getSession(false)).thenReturn(session);
-        when(request.getMethod()).thenReturn("POST");
+    void createBooking_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.PASSENGER_USER_ID, "PASSENGER"));
+        when(ctx.req.getParameter("tripId")).thenReturn(String.valueOf(TestDb.TRIP_FUTURE_ID));
+
         CreateBookingServlet servlet = new CreateBookingServlet();
-        servlet.service(request, response);
-        verify(response, atLeastOnce()).sendRedirect(anyString());
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect("/app/passenger/dashboard?bookingCreated=1");
     }
 }
