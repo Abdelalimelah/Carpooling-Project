@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
-import com.JAVA.Beans.UserBean; // IMPORT
+import com.JAVA.Beans.UserBean; // Import correct
 
 import static org.mockito.Mockito.*;
 
@@ -17,12 +17,11 @@ class PassengerFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
-        // 1. Mock User Passager
-        User passengerUser = mock(User.class);
+        // CORRECTION ICI : UserBean partout !
+        UserBean passengerUser = mock(UserBean.class);
         when(passengerUser.getRole()).thenReturn("passenger");
 
         when(request.getSession(false)).thenReturn(session);
-        // 2. Correction Session
         when(session.getAttribute("user")).thenReturn(passengerUser);
         
         when(request.getRequestURI()).thenReturn("/passenger/book.jsp");
@@ -41,12 +40,11 @@ class PassengerFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
-        // 1. Mock User Lambda
-        User simpleUser = mock(User.class);
+        // CORRECTION ICI : UserBean partout !
+        UserBean simpleUser = mock(UserBean.class);
         when(simpleUser.getRole()).thenReturn("user");
 
         when(request.getSession(false)).thenReturn(session);
-        // 2. Correction Session
         when(session.getAttribute("user")).thenReturn(simpleUser);
         
         when(request.getRequestURI()).thenReturn("/passenger/book.jsp");
