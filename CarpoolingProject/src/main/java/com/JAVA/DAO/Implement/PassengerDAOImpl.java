@@ -7,9 +7,9 @@ import java.util.List;
 import com.JAVA.Beans.PassengerBean;
 import com.JAVA.DAO.PassengerDAO;
 import com.JAVA.DAO.Exception.DAOException;
-  
+
 public class PassengerDAOImpl implements PassengerDAO {
-    
+
     private Connection connection;
 
     public PassengerDAOImpl(Connection connection) {
@@ -25,7 +25,7 @@ public class PassengerDAOImpl implements PassengerDAO {
             throw new DAOException("Error creating passenger", e);
         }
     }
-    
+
     public int findUserIdByPassengerId(int passengerId) throws DAOException {
         String sql = "SELECT user_id FROM Passenger WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -39,7 +39,7 @@ public class PassengerDAOImpl implements PassengerDAO {
             throw new DAOException("Error finding user ID by passenger ID: " + passengerId, e);
         }
     }
-    
+
     public int findByUserId(int userId) throws DAOException {
         String sql = "SELECT id FROM Passenger WHERE user_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -53,52 +53,56 @@ public class PassengerDAOImpl implements PassengerDAO {
             throw new DAOException("Error finding passenger by user ID: " + userId, e);
         }
     }
-    
+
     @Override
     public int countAll() throws DAOException {
         String sql = "SELECT COUNT(*) FROM Passenger";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
-        } catch (SQLException e) { throw new DAOException(e); }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
     }
 
     @Override
     public List<PassengerBean> findAll() throws DAOException {
         String sql = """
-            SELECT p.id AS passenger_id, p.user_id,
-                   u.email, u.first_name, u.last_name, u.phone_number, u.role, u.created_at
-            FROM Passenger p
-            JOIN User u ON u.id = p.user_id
-            ORDER BY p.id DESC
-        """;
+                    SELECT p.id AS passenger_id, p.user_id,
+                           u.email, u.first_name, u.last_name, u.phone_number, u.role, u.created_at
+                    FROM Passenger p
+                    JOIN \"User\" u ON u.id = p.user_id
+                    ORDER BY p.id DESC
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             List<PassengerBean> list = new ArrayList<>();
             while (rs.next()) {
                 PassengerBean pBean = new PassengerBean();
                 pBean.setId(rs.getInt("passenger_id"));
                 pBean.setUserId(rs.getInt("user_id"));
                 // if your bean has these (optional)
-                //pBean.setEmail(rs.getString("email"));
-                //pBean.setFirstName(rs.getString("first_name"));
-                //pBean.setLastName(rs.getString("last_name"));
-                //pBean.setPhoneNumber(rs.getString("phone_number"));
+                // pBean.setEmail(rs.getString("email"));
+                // pBean.setFirstName(rs.getString("first_name"));
+                // pBean.setLastName(rs.getString("last_name"));
+                // pBean.setPhoneNumber(rs.getString("phone_number"));
                 return list.add(pBean) ? list : list; // add
             }
             return list;
-        } catch (SQLException e) { throw new DAOException(e); }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
     }
 
     @Override
     public PassengerBean findById(int id) throws DAOException {
         String sql = """
-            SELECT p.id AS passenger_id, p.user_id,
-                   u.email, u.first_name, u.last_name, u.phone_number, u.role, u.created_at
-            FROM Passenger p
-            JOIN User u ON u.id = p.user_id
-            WHERE p.id = ?
-        """;
+                    SELECT p.id AS passenger_id, p.user_id,
+                           u.email, u.first_name, u.last_name, u.phone_number, u.role, u.created_at
+                    FROM Passenger p
+                    JOIN \"User\" u ON u.id = p.user_id
+                    WHERE p.id = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -106,24 +110,28 @@ public class PassengerDAOImpl implements PassengerDAO {
                     PassengerBean pBean = new PassengerBean();
                     pBean.setId(rs.getInt("passenger_id"));
                     pBean.setUserId(rs.getInt("user_id"));
-                    //pBean.setEmail(rs.getString("email"));
-                    //pBean.setFirstName(rs.getString("first_name"));
-                    //pBean.setLastName(rs.getString("last_name"));
-                    //pBean.setPhoneNumber(rs.getString("phone_number"));
+                    // pBean.setEmail(rs.getString("email"));
+                    // pBean.setFirstName(rs.getString("first_name"));
+                    // pBean.setLastName(rs.getString("last_name"));
+                    // pBean.setPhoneNumber(rs.getString("phone_number"));
                     return pBean;
                 }
                 return null;
             }
-        } catch (SQLException e) { throw new DAOException(e); }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
     }
-    
+
     @Override
     public boolean deleteByUserId(int userId) throws DAOException {
         final String sql = "DELETE FROM Passenger WHERE user_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { throw new DAOException(e); }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        }
     }
 
 }

@@ -16,7 +16,7 @@ class PassengerFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
-        
+
         UserBean passengerUser = mock(UserBean.class);
         when(passengerUser.getRole()).thenReturn("passenger");
 
@@ -24,12 +24,13 @@ class PassengerFilterTest {
         when(request.getSession()).thenReturn(session); // AJOUT IMPORTANT
 
         when(session.getAttribute("user")).thenReturn(passengerUser);
-        when(request.getRequestURI()).thenReturn("/passenger/book.jsp");
+        when(request.getServletPath()).thenReturn("/passenger/book.jsp");
+        when(request.getContextPath()).thenReturn("");
         when(request.getContextPath()).thenReturn("");
 
         PassengerFilter filter = new PassengerFilter();
         filter.doFilter(request, response, chain);
-        
+
         verify(chain, times(1)).doFilter(request, response);
     }
 
@@ -39,7 +40,7 @@ class PassengerFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
-        
+
         UserBean simpleUser = mock(UserBean.class);
         when(simpleUser.getRole()).thenReturn("user");
 
@@ -47,12 +48,13 @@ class PassengerFilterTest {
         when(request.getSession()).thenReturn(session); // AJOUT IMPORTANT
 
         when(session.getAttribute("user")).thenReturn(simpleUser);
-        when(request.getRequestURI()).thenReturn("/passenger/book.jsp");
+        when(request.getServletPath()).thenReturn("/passenger/book.jsp");
+        when(request.getContextPath()).thenReturn("");
         when(request.getContextPath()).thenReturn("");
 
         PassengerFilter filter = new PassengerFilter();
         filter.doFilter(request, response, chain);
-        
+
         verify(response, atLeastOnce()).sendRedirect(anyString());
     }
 }

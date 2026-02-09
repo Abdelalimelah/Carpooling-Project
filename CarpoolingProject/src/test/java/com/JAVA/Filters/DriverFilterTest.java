@@ -16,7 +16,7 @@ class DriverFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
-        
+
         UserBean driverUser = mock(UserBean.class);
         when(driverUser.getRole()).thenReturn("driver");
 
@@ -24,12 +24,14 @@ class DriverFilterTest {
         when(request.getSession()).thenReturn(session); // AJOUT IMPORTANT
 
         when(session.getAttribute("user")).thenReturn(driverUser);
-        when(request.getRequestURI()).thenReturn("/driver/schedule.jsp");
+        when(request.getServletPath()).thenReturn("/driver/schedule.jsp");
+        when(request.getContextPath()).thenReturn("");
+        ;
         when(request.getContextPath()).thenReturn("");
 
         DriverFilter filter = new DriverFilter();
         filter.doFilter(request, response, chain);
-        
+
         verify(chain, times(1)).doFilter(request, response);
     }
 
@@ -39,7 +41,7 @@ class DriverFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
-        
+
         UserBean simpleUser = mock(UserBean.class);
         when(simpleUser.getRole()).thenReturn("user");
 
@@ -47,12 +49,14 @@ class DriverFilterTest {
         when(request.getSession()).thenReturn(session); // AJOUT IMPORTANT
 
         when(session.getAttribute("user")).thenReturn(simpleUser);
-        when(request.getRequestURI()).thenReturn("/driver/schedule.jsp");
+        when(request.getServletPath()).thenReturn("/driver/schedule.jsp");
+        when(request.getContextPath()).thenReturn("");
+        ;
         when(request.getContextPath()).thenReturn("");
 
         DriverFilter filter = new DriverFilter();
         filter.doFilter(request, response, chain);
-        
+
         verify(response, atLeastOnce()).sendRedirect(anyString());
     }
 }
