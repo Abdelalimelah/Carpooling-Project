@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
+import com.JAVA.Beans.User; // IMPORT
+
 import static org.mockito.Mockito.*;
 
 class DriverFilterTest {
@@ -15,10 +17,14 @@ class DriverFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
+        // 1. Mock User Conducteur
+        User driverUser = mock(User.class);
+        when(driverUser.getRole()).thenReturn("driver");
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("role")).thenReturn("driver");
+        // 2. Correction Session
+        when(session.getAttribute("user")).thenReturn(driverUser);
         
-        // AJOUT : Simuler une URL de conducteur
         when(request.getRequestURI()).thenReturn("/driver/schedule.jsp");
         when(request.getContextPath()).thenReturn("");
 
@@ -35,10 +41,14 @@ class DriverFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
+        // 1. Mock User Lambda
+        User simpleUser = mock(User.class);
+        when(simpleUser.getRole()).thenReturn("user");
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("role")).thenReturn("user");
+        // 2. Correction Session
+        when(session.getAttribute("user")).thenReturn(simpleUser);
         
-        // AJOUT
         when(request.getRequestURI()).thenReturn("/driver/schedule.jsp");
         when(request.getContextPath()).thenReturn("");
 

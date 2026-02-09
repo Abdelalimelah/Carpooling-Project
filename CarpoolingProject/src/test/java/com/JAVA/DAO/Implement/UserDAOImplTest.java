@@ -39,7 +39,7 @@ class UserDAOImplTest {
     void setUp() throws Exception {
         userDAO = new UserDAOImpl(connection);
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DELETE FROM user");
+            stmt.execute("DELETE FROM \"User\"");
         }
     }
 

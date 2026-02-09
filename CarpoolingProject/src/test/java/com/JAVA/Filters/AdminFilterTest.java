@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
+import com.JAVA.Beans.User; // IMPORT DU BEAN USER
+
 import static org.mockito.Mockito.*;
 
 class AdminFilterTest {
@@ -15,10 +17,14 @@ class AdminFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
+        // 1. Créer un Mock de l'objet User
+        User adminUser = mock(User.class);
+        when(adminUser.getRole()).thenReturn("admin"); // On définit son rôle
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("role")).thenReturn("admin");
+        // 2. CORRECTION : On met l'objet User dans la session (pas juste le string role)
+        when(session.getAttribute("user")).thenReturn(adminUser); 
         
-        // AJOUT : Simuler une URL valide pour passer les checks du filtre
         when(request.getRequestURI()).thenReturn("/admin/dashboard.jsp");
         when(request.getContextPath()).thenReturn("");
 
@@ -35,10 +41,14 @@ class AdminFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
+        // 1. Créer un User "lambda"
+        User simpleUser = mock(User.class);
+        when(simpleUser.getRole()).thenReturn("user"); // Rôle simple
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("role")).thenReturn("user"); // Pas admin
+        // 2. CORRECTION
+        when(session.getAttribute("user")).thenReturn(simpleUser); 
         
-        // AJOUT
         when(request.getRequestURI()).thenReturn("/admin/dashboard.jsp");
         when(request.getContextPath()).thenReturn("");
 

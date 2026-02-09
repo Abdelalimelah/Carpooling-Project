@@ -43,7 +43,7 @@ class PassengerDAOImplTest {
         passengerDAO = new PassengerDAOImpl(connection);
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("DELETE FROM Passenger");
-            stmt.execute("DELETE FROM User");
+            stmt.execute("DELETE FROM \"User\"");
         }
     }
 

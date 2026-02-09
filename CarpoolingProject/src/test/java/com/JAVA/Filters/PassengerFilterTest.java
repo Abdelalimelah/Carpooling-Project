@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
+import com.JAVA.Beans.User; // IMPORT
+
 import static org.mockito.Mockito.*;
 
 class PassengerFilterTest {
@@ -15,10 +17,14 @@ class PassengerFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
+        // 1. Mock User Passager
+        User passengerUser = mock(User.class);
+        when(passengerUser.getRole()).thenReturn("passenger");
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("role")).thenReturn("passenger");
+        // 2. Correction Session
+        when(session.getAttribute("user")).thenReturn(passengerUser);
         
-        // AJOUT : Simuler une URL de passager
         when(request.getRequestURI()).thenReturn("/passenger/book.jsp");
         when(request.getContextPath()).thenReturn("");
 
@@ -35,10 +41,14 @@ class PassengerFilterTest {
         HttpSession session = mock(HttpSession.class);
         FilterChain chain = mock(FilterChain.class);
         
+        // 1. Mock User Lambda
+        User simpleUser = mock(User.class);
+        when(simpleUser.getRole()).thenReturn("user");
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("role")).thenReturn("user");
+        // 2. Correction Session
+        when(session.getAttribute("user")).thenReturn(simpleUser);
         
-        // AJOUT
         when(request.getRequestURI()).thenReturn("/passenger/book.jsp");
         when(request.getContextPath()).thenReturn("");
 
