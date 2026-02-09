@@ -95,7 +95,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean update(UserBean u) throws DAOException {
-        final String sql = "UPDATE `User` " +
+        final String sql = "UPDATE \"User\" " +
                 "SET email = ?, first_name = ?, last_name = ?, phone_number = ?, role = ? " +
                 "WHERE id = ?";
 
@@ -125,7 +125,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public int countAll() throws DAOException {
-        String sql = "SELECT COUNT(*) FROM User";
+        String sql = "SELECT COUNT(*) FROM \"User\"";
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
@@ -136,7 +136,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean deleteById(int userId) throws DAOException {
-        String sql = "DELETE FROM User WHERE id = ?";
+        String sql = "DELETE FROM \"User\" WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             return ps.executeUpdate() > 0;
@@ -149,7 +149,7 @@ public class UserDAOImpl implements UserDAO {
     public List<UserBean> findPaged(int offset, int limit) throws DAOException {
         String sql = """
                     SELECT id, email, first_name, last_name, phone_number, role, created_at
-                    FROM User
+                    FROM \"User\"
                     ORDER BY id ASC
                     LIMIT ? OFFSET ?
                 """;
