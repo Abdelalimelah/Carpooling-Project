@@ -34,9 +34,9 @@ import java.sql.Connection;
 <span class="fc" id="L34">        HttpSession session = request.getSession(false);</span>
 <span class="fc" id="L35">        UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
         
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (user == null) {</span>
-<span class="nc" id="L38">            response.sendRedirect(request.getContextPath() + &quot;/login&quot;);</span>
-<span class="nc" id="L39">            return;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (user == null) {</span>
+<span class="fc" id="L38">            response.sendRedirect(request.getContextPath() + &quot;/login&quot;);</span>
+<span class="fc" id="L39">            return;</span>
         }
         
 <span class="fc" id="L42">        String firstName = request.getParameter(&quot;firstName&quot;);</span>
@@ -46,17 +46,17 @@ import java.sql.Connection;
 <span class="fc" id="L46">        String newPassword = request.getParameter(&quot;newPassword&quot;);</span>
 <span class="fc" id="L47">        String confirmPassword = request.getParameter(&quot;confirmPassword&quot;);</span>
         
-<span class="pc bpc" id="L49" title="2 of 4 branches missed.">        if (newPassword != null &amp;&amp; !newPassword.trim().isEmpty()) {</span>
-<span class="nc bnc" id="L50" title="All 4 branches missed.">            if (confirmPassword == null || !newPassword.equals(confirmPassword)) {</span>
-<span class="nc" id="L51">                request.setAttribute(&quot;errorMessage&quot;, &quot;New password and confirmation do not match.&quot;);</span>
-<span class="nc" id="L52">                request.getRequestDispatcher(&quot;/views/profile/edit.jsp&quot;).forward(request, response);</span>
-<span class="nc" id="L53">                return;</span>
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">        if (newPassword != null &amp;&amp; !newPassword.trim().isEmpty()) {</span>
+<span class="pc bpc" id="L50" title="1 of 4 branches missed.">            if (confirmPassword == null || !newPassword.equals(confirmPassword)) {</span>
+<span class="fc" id="L51">                request.setAttribute(&quot;errorMessage&quot;, &quot;New password and confirmation do not match.&quot;);</span>
+<span class="fc" id="L52">                request.getRequestDispatcher(&quot;/views/profile/edit.jsp&quot;).forward(request, response);</span>
+<span class="fc" id="L53">                return;</span>
             }
             
-<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (newPassword.length() &lt; 6) {</span>
-<span class="nc" id="L57">                request.setAttribute(&quot;errorMessage&quot;, &quot;New password must be at least 6 characters long.&quot;);</span>
-<span class="nc" id="L58">                request.getRequestDispatcher(&quot;/views/profile/edit.jsp&quot;).forward(request, response);</span>
-<span class="nc" id="L59">                return;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">            if (newPassword.length() &lt; 6) {</span>
+<span class="fc" id="L57">                request.setAttribute(&quot;errorMessage&quot;, &quot;New password must be at least 6 characters long.&quot;);</span>
+<span class="fc" id="L58">                request.getRequestDispatcher(&quot;/views/profile/edit.jsp&quot;).forward(request, response);</span>
+<span class="fc" id="L59">                return;</span>
             }
         }
         

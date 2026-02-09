@@ -83,12 +83,12 @@ import java.util.*;
             
 <span class="fc" id="L84">            request.getRequestDispatcher(&quot;/views/passenger/browseTrips.jsp&quot;).forward(request, response);</span>
             
-<span class="nc" id="L86">        } catch (Exception e) {</span>
-<span class="nc" id="L87">            e.printStackTrace();</span>
-<span class="nc" id="L88">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error loading trips: &quot; + e.getMessage());</span>
-<span class="nc" id="L89">            request.getRequestDispatcher(&quot;/views/error.jsp&quot;).forward(request, response);</span>
+<span class="fc" id="L86">        } catch (Exception e) {</span>
+<span class="fc" id="L87">            e.printStackTrace();</span>
+<span class="fc" id="L88">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error loading trips: &quot; + e.getMessage());</span>
+<span class="fc" id="L89">            request.getRequestDispatcher(&quot;/views/error.jsp&quot;).forward(request, response);</span>
         } finally {
-<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (conn != null) {</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (conn != null) {</span>
                 try {
 <span class="fc" id="L93">                    conn.close();</span>
 <span class="nc" id="L94">                } catch (Exception e) {</span>

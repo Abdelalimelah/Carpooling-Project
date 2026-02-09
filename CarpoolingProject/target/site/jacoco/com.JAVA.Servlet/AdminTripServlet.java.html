@@ -31,9 +31,9 @@ import java.util.List;
 <span class="fc" id="L31">        String action = req.getParameter(&quot;action&quot;);</span>
 <span class="fc" id="L32">        String ret = req.getContextPath() + &quot;/admin/dashboard&quot;;</span>
 
-<span class="pc bpc" id="L34" title="3 of 4 branches missed.">        if (!&quot;view&quot;.equals(action) &amp;&amp; !&quot;edit&quot;.equals(action)) {</span>
-<span class="nc" id="L35">            resp.sendRedirect(ret + &quot;?error=Unknown%20action&quot;);</span>
-<span class="nc" id="L36">            return;</span>
+<span class="fc bfc" id="L34" title="All 4 branches covered.">        if (!&quot;view&quot;.equals(action) &amp;&amp; !&quot;edit&quot;.equals(action)) {</span>
+<span class="fc" id="L35">            resp.sendRedirect(ret + &quot;?error=Unknown%20action&quot;);</span>
+<span class="fc" id="L36">            return;</span>
         }
 
 <span class="fc" id="L39">        Connection conn = null;</span>
@@ -67,10 +67,10 @@ import java.util.List;
 <span class="fc" id="L67">            req.setAttribute(&quot;bookings&quot;, bookings);</span>
 <span class="fc" id="L68">            req.setAttribute(&quot;ret&quot;, ret);</span>
 
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">            if (&quot;view&quot;.equals(action)) {</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (&quot;view&quot;.equals(action)) {</span>
 <span class="fc" id="L71">                req.getRequestDispatcher(&quot;/views/admin/trips/view.jsp&quot;).forward(req, resp);</span>
             } else { // edit
-<span class="nc" id="L73">                req.getRequestDispatcher(&quot;/views/admin/trips/edit.jsp&quot;).forward(req, resp);</span>
+<span class="fc" id="L73">                req.getRequestDispatcher(&quot;/views/admin/trips/edit.jsp&quot;).forward(req, resp);</span>
             }
 
 <span class="nc" id="L76">        } catch (Exception e) {</span>
@@ -98,20 +98,20 @@ import java.util.List;
 
 <span class="fc" id="L99">            int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
 
-<span class="pc bpc" id="L101" title="4 of 6 branches missed.">            switch (action == null ? &quot;&quot; : action) {</span>
+<span class="pc bpc" id="L101" title="2 of 6 branches missed.">            switch (action == null ? &quot;&quot; : action) {</span>
                 case &quot;delete&quot;: {
-<span class="nc" id="L103">                    boolean ok = tripDAO.delete(id);</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">                    if (!ok) throw new DAOException(new RuntimeException(&quot;Delete failed&quot;));</span>
-<span class="nc" id="L105">                    conn.commit();</span>
-<span class="nc" id="L106">                    resp.sendRedirect(ret + &quot;?success=Trip%20deleted&quot;);</span>
-<span class="nc" id="L107">                    return;</span>
+<span class="fc" id="L103">                    boolean ok = tripDAO.delete(id);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">                    if (!ok) throw new DAOException(new RuntimeException(&quot;Delete failed&quot;));</span>
+<span class="fc" id="L105">                    conn.commit();</span>
+<span class="fc" id="L106">                    resp.sendRedirect(ret + &quot;?success=Trip%20deleted&quot;);</span>
+<span class="fc" id="L107">                    return;</span>
                 }
                 case &quot;forceComplete&quot;: {
                     // If already completed, do nothing
-<span class="nc bnc" id="L111" title="All 2 branches missed.">                    if (bookingDAO.tripIsCompleted(id)) {</span>
-<span class="nc" id="L112">                        conn.rollback();</span>
-<span class="nc" id="L113">                        resp.sendRedirect(ret + &quot;?info=Trip%20already%20completed&quot;);</span>
-<span class="nc" id="L114">                        return;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                    if (bookingDAO.tripIsCompleted(id)) {</span>
+<span class="fc" id="L112">                        conn.rollback();</span>
+<span class="fc" id="L113">                        resp.sendRedirect(ret + &quot;?info=Trip%20already%20completed&quot;);</span>
+<span class="fc" id="L114">                        return;</span>
                     }
 <span class="nc" id="L116">                    List&lt;BookingBean&gt; bookings = bookingDAO.findByTripId(id);</span>
 <span class="nc bnc" id="L117" title="All 4 branches missed.">                    if (bookings == null || bookings.isEmpty()) {</span>

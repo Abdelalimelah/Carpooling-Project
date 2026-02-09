@@ -21,9 +21,9 @@ import java.sql.Connection;
     @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 <span class="fc" id="L23">        String action = req.getParameter(&quot;action&quot;);</span>
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (!&quot;edit&quot;.equals(action)) {</span>
-<span class="nc" id="L25">            resp.sendError(404);</span>
-<span class="nc" id="L26">            return;</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (!&quot;edit&quot;.equals(action)) {</span>
+<span class="fc" id="L25">            resp.sendError(404);</span>
+<span class="fc" id="L26">            return;</span>
         }
 <span class="fc" id="L28">        int userId = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
 
@@ -35,9 +35,9 @@ import java.sql.Connection;
 <span class="fc" id="L35">            DriverDAOImpl driverDAO = new DriverDAOImpl(conn);</span>
 
 <span class="fc" id="L37">            UserBean user = userDAO.findById(userId);</span>
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            if (user == null) {</span>
-<span class="nc" id="L39">                resp.sendRedirect(req.getContextPath()+&quot;/views/error.jsp?msg=User not found&quot;);</span>
-<span class="nc" id="L40">                return;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (user == null) {</span>
+<span class="fc" id="L39">                resp.sendRedirect(req.getContextPath()+&quot;/views/error.jsp?msg=User not found&quot;);</span>
+<span class="fc" id="L40">                return;</span>
             }
 
 <span class="fc" id="L43">            String licenceNumber = null;</span>
@@ -76,7 +76,7 @@ import java.sql.Connection;
 <span class="fc" id="L76">            DriverDAOImpl driverDAO = new DriverDAOImpl(conn);</span>
 <span class="fc" id="L77">            PassengerDAOImpl passengerDAO = new PassengerDAOImpl(conn);</span>
 
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if (&quot;update&quot;.equals(action)) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            if (&quot;update&quot;.equals(action)) {</span>
 <span class="fc" id="L80">                int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
 <span class="fc" id="L81">                String email = req.getParameter(&quot;email&quot;);</span>
 <span class="fc" id="L82">                String firstName = req.getParameter(&quot;firstName&quot;);</span>
@@ -90,7 +90,7 @@ import java.sql.Connection;
 
 <span class="fc" id="L91">                final String originalRole = u.getRole();</span>
 <span class="pc bpc" id="L92" title="2 of 4 branches missed.">                final String newRole = (roleParam == null || roleParam.isBlank()) ? originalRole : roleParam;</span>
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">                final boolean roleChanged = !originalRole.equals(newRole);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                final boolean roleChanged = !originalRole.equals(newRole);</span>
 
 <span class="fc" id="L95">                u.setEmail(email);</span>
 <span class="fc" id="L96">                u.setFirstName(firstName);</span>
@@ -99,7 +99,7 @@ import java.sql.Connection;
 <span class="fc" id="L99">                u.setRole(newRole);</span>
 <span class="pc bpc" id="L100" title="1 of 2 branches missed.">                if (!userDAO.update(u)) throw new DAOException(new RuntimeException(&quot;User update failed&quot;));</span>
 
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                if (roleChanged) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">                if (roleChanged) {</span>
 <span class="pc bpc" id="L103" title="3 of 4 branches missed.">                    switch (newRole) {</span>
                         case &quot;DRIVER&quot;: {
 <span class="pc bpc" id="L105" title="2 of 4 branches missed.">                            if (licence == null || licence.isBlank()) {</span>
@@ -138,10 +138,10 @@ import java.sql.Connection;
 <span class="nc" id="L138">                            throw new DAOException(new IllegalArgumentException(&quot;Unsupported role: &quot; + newRole));</span>
 <span class="fc" id="L139">                    }</span>
                 } else {
-<span class="nc bnc" id="L141" title="All 4 branches missed.">                    switch (newRole) {</span>
+<span class="pc bpc" id="L141" title="3 of 4 branches missed.">                    switch (newRole) {</span>
                         case &quot;DRIVER&quot;: {
-<span class="nc" id="L143">                            int did = driverDAO.getDriverIdByUserId(id);</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                            if (did &lt;= 0) {</span>
+<span class="fc" id="L143">                            int did = driverDAO.getDriverIdByUserId(id);</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">                            if (did &lt;= 0) {</span>
 <span class="nc bnc" id="L145" title="All 4 branches missed.">                                if (licence != null &amp;&amp; !licence.isBlank()) {</span>
 <span class="nc" id="L146">                                    DriverBean d = new DriverBean();</span>
 <span class="nc" id="L147">                                    d.setUserId(id);</span>
@@ -149,13 +149,13 @@ import java.sql.Connection;
 <span class="nc" id="L149">                                    driverDAO.create(d);</span>
 <span class="nc" id="L150">                                }</span>
                             } else {
-<span class="nc bnc" id="L152" title="All 4 branches missed.">                                if (licence != null &amp;&amp; !licence.isBlank()) {</span>
-<span class="nc" id="L153">                                    DriverBean d = new DriverBean();</span>
-<span class="nc" id="L154">                                    d.setId(did);</span>
-<span class="nc" id="L155">                                    d.setUserId(id);</span>
-<span class="nc" id="L156">                                    d.setLicenceNumber(licence);</span>
-<span class="nc" id="L157">                                    driverDAO.update(d);</span>
-<span class="nc" id="L158">                                }</span>
+<span class="pc bpc" id="L152" title="2 of 4 branches missed.">                                if (licence != null &amp;&amp; !licence.isBlank()) {</span>
+<span class="fc" id="L153">                                    DriverBean d = new DriverBean();</span>
+<span class="fc" id="L154">                                    d.setId(did);</span>
+<span class="fc" id="L155">                                    d.setUserId(id);</span>
+<span class="fc" id="L156">                                    d.setLicenceNumber(licence);</span>
+<span class="fc" id="L157">                                    driverDAO.update(d);</span>
+<span class="fc" id="L158">                                }</span>
                             }
                             break;
                         }
@@ -181,18 +181,18 @@ import java.sql.Connection;
             }
 
 
-<span class="nc bnc" id="L184" title="All 2 branches missed.">            if (&quot;delete&quot;.equals(action)) {</span>
-<span class="nc" id="L185">                int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
-<span class="nc" id="L186">                boolean ok = userDAO.deleteById(id);</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">                if (!ok) throw new DAOException(new RuntimeException(&quot;Delete failed&quot;));</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">            if (&quot;delete&quot;.equals(action)) {</span>
+<span class="fc" id="L185">                int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
+<span class="fc" id="L186">                boolean ok = userDAO.deleteById(id);</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">                if (!ok) throw new DAOException(new RuntimeException(&quot;Delete failed&quot;));</span>
 
-<span class="nc" id="L189">                conn.commit();</span>
-<span class="nc" id="L190">                resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?success=User%20deleted&quot;);</span>
-<span class="nc" id="L191">                return;</span>
+<span class="fc" id="L189">                conn.commit();</span>
+<span class="fc" id="L190">                resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?success=User%20deleted&quot;);</span>
+<span class="fc" id="L191">                return;</span>
             }
 
-<span class="nc" id="L194">            conn.rollback();</span>
-<span class="nc" id="L195">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Unknown%20action&quot;);</span>
+<span class="fc" id="L194">            conn.rollback();</span>
+<span class="fc" id="L195">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Unknown%20action&quot;);</span>
 
 <span class="nc" id="L197">        } catch (Exception e) {</span>
 <span class="nc" id="L198">            e.printStackTrace();</span>
@@ -201,7 +201,7 @@ import java.sql.Connection;
         } finally {
 <span class="pc bpc" id="L202" title="1 of 2 branches missed.">            if (conn != null) try { conn.close(); } catch (Exception ignore) {}</span>
         }
-<span class="nc" id="L204">    }</span>
+<span class="fc" id="L204">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

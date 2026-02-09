@@ -7,11 +7,14 @@ com\JAVA\Beans\TripBeanTest.class
 com\JAVA\Servlet\CancelTripPassengerServletIT.class
 com\JAVA\Servlet\EditCarServletIT.class
 com\JAVA\Servlet\AdminUserServletIT.class
+com\JAVA\Config\NotificationWebSocketTest.class
+com\JAVA\DAO\Exception\DAOConfigurationExceptionTest.class
 com\JAVA\Servlet\CancelBookingServletIT.class
 com\JAVA\Servlet\TripDetailsPassengerServletIT.class
 com\JAVA\Servlet\CompleteTripServletIT.class
 com\JAVA\DAO\Implement\TripDAOImplTest.class
 com\JAVA\DAO\Factory\DAOFactoryTest.class
+com\JAVA\DAO\Exception\DAOExceptionTest.class
 com\JAVA\Servlet\EditTripServletIT.class
 com\JAVA\Servlet\AdminTripServletIT.class
 com\JAVA\Servlet\FeedbackServletIT.class

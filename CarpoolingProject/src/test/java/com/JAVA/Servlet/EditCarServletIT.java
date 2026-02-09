@@ -19,6 +19,17 @@ class EditCarServletIT extends BaseServletTest {
     }
 
     @Test
+    void doGet_notFound_sendsError() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("id")).thenReturn("999");
+
+        EditCarServlet servlet = new EditCarServlet();
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendError(eq(404), anyString());
+    }
+
+    @Test
     void doPost_valid_redirects() throws Exception {
         var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
         when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.CAR_ID));
@@ -30,5 +41,19 @@ class EditCarServletIT extends BaseServletTest {
         servlet.doPost(ctx.req, ctx.resp);
 
         verify(ctx.resp).sendRedirect("/app/driver/dashboard?carUpdated=1");
+    }
+
+    @Test
+    void doPost_missingFields_forwards() throws Exception {
+        var ctx = ctx(user(TestDb.DRIVER_USER_ID, "DRIVER"));
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.CAR_ID));
+        when(ctx.req.getParameter("brand")).thenReturn("");
+        when(ctx.req.getParameter("model")).thenReturn("");
+        when(ctx.req.getParameter("plateNumber")).thenReturn("");
+
+        EditCarServlet servlet = new EditCarServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
     }
 }

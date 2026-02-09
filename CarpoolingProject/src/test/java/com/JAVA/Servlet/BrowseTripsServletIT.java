@@ -14,4 +14,12 @@ class BrowseTripsServletIT extends BaseServletTest {
         servlet.doGet(ctx.req, ctx.resp);
         verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
     }
+
+    @Test
+    void browseTrips_noSession_forwardsError() throws Exception {
+        var ctx = ctxNoSession();
+        BrowseTripsServlet servlet = new BrowseTripsServlet();
+        servlet.doGet(ctx.req, ctx.resp);
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
+    }
 }

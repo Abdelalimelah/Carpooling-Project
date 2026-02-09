@@ -1,4 +1,5 @@
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\DAO\Implement\PassengerDAOImplTest.java
+D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\DAO\Exception\DAOConfigurationExceptionTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Utils\PasswordUtilTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\BrowseTripsServletIT.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\CreateBookingServletIT.java
@@ -30,6 +31,7 @@ D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\J
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Beans\UserBeanTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\DriverDashServletIT.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\EditTripServletIT.java
+D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Config\NotificationWebSocketTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\CancelBookingServletIT.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\AdminDashboardServletIT.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\DeleteCarServletIT.java
@@ -42,6 +44,7 @@ D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\J
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Beans\NotificationBeanTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\DAO\Implement\NotificationDAOImplTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\AdminBookingServletIT.java
+D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\DAO\Exception\DAOExceptionTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Servlet\BaseServletTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\Filters\AdminFilterTest.java
 D:\Cours\DevOps\Project\Carpooling-Project\CarpoolingProject\src\test\java\com\JAVA\DAO\Implement\BaseDaoTest.java

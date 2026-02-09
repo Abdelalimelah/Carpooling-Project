@@ -24,9 +24,9 @@ import java.sql.Connection;
         int id;
         try {
 <span class="fc" id="L26">            id = Integer.parseInt(String.valueOf(req.getParameter(&quot;id&quot;)).trim());</span>
-<span class="nc" id="L27">        } catch (Exception e) {</span>
-<span class="nc" id="L28">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Invalid%20booking%20id&quot;);</span>
-<span class="nc" id="L29">            return;</span>
+<span class="fc" id="L27">        } catch (Exception e) {</span>
+<span class="fc" id="L28">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Invalid%20booking%20id&quot;);</span>
+<span class="fc" id="L29">            return;</span>
 <span class="fc" id="L30">        }</span>
 
 <span class="fc" id="L32">        Connection conn = null;</span>
@@ -38,7 +38,7 @@ import java.sql.Connection;
 <span class="fc" id="L38">            BookingDAOImpl bookingDAO = new BookingDAOImpl(conn);</span>
             boolean ok;
 
-<span class="pc bpc" id="L41" title="3 of 4 branches missed.">            switch (action) {</span>
+<span class="pc bpc" id="L41" title="1 of 4 branches missed.">            switch (action) {</span>
                 case &quot;confirm&quot;:
 <span class="fc" id="L43">                    ok = bookingDAO.updateStatus(id, &quot;CONFIRMED&quot;);</span>
 <span class="fc" id="L44">                    break;</span>
@@ -46,13 +46,13 @@ import java.sql.Connection;
 <span class="nc" id="L46">                    ok = bookingDAO.updateStatus(id, &quot;CANCELLED&quot;);</span>
 <span class="nc" id="L47">                    break;</span>
                 case &quot;delete&quot;:
-<span class="nc" id="L49">                    ok = bookingDAO.deleteById(id);</span>
-<span class="nc" id="L50">                    break;</span>
+<span class="fc" id="L49">                    ok = bookingDAO.deleteById(id);</span>
+<span class="fc" id="L50">                    break;</span>
                 default:
-<span class="nc" id="L52">                    ok = false;</span>
+<span class="fc" id="L52">                    ok = false;</span>
             }
 
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">            if (!ok) throw new DAOException(new RuntimeException(&quot;Operation failed&quot;));</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (!ok) throw new DAOException(new RuntimeException(&quot;Operation failed&quot;));</span>
 
 <span class="fc" id="L57">            conn.commit();</span>
 
@@ -60,9 +60,9 @@ import java.sql.Connection;
 <span class="fc" id="L60">            String qs = buildReturnQS(req);</span>
 <span class="fc" id="L61">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard&quot; + qs);</span>
 
-<span class="nc" id="L63">        } catch (Exception e) {</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            try { if (conn != null) conn.rollback(); } catch (Exception ignore) {}</span>
-<span class="nc" id="L65">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Failed%20to%20update%20booking&quot;);</span>
+<span class="fc" id="L63">        } catch (Exception e) {</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">            try { if (conn != null) conn.rollback(); } catch (Exception ignore) {}</span>
+<span class="fc" id="L65">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Failed%20to%20update%20booking&quot;);</span>
         } finally {
 <span class="pc bpc" id="L67" title="1 of 2 branches missed.">            if (conn != null) try { conn.close(); } catch (Exception ignore) {}</span>
         }

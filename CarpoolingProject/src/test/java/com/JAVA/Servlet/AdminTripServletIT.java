@@ -20,6 +20,29 @@ class AdminTripServletIT extends BaseServletTest {
     }
 
     @Test
+    void editTrip_forwards() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("edit");
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.TRIP_FUTURE_ID));
+
+        AdminTripServlet servlet = new AdminTripServlet();
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.dispatcher).forward(ctx.req, ctx.resp);
+    }
+
+    @Test
+    void invalidAction_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("foo");
+
+        AdminTripServlet servlet = new AdminTripServlet();
+        servlet.doGet(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
+    }
+
+    @Test
     void updateTrip_redirects() throws Exception {
         var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
         when(ctx.req.getParameter("action")).thenReturn("update");
@@ -30,6 +53,30 @@ class AdminTripServletIT extends BaseServletTest {
         when(ctx.req.getParameter("price")).thenReturn("12.50");
         when(ctx.req.getParameter("seatsAvailable")).thenReturn("2");
         when(ctx.req.getParameter("carId")).thenReturn(String.valueOf(TestDb.CAR_ID));
+
+        AdminTripServlet servlet = new AdminTripServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
+    }
+
+    @Test
+    void forceComplete_alreadyCompleted_redirectsInfo() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("forceComplete");
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.TRIP_PAST_ID));
+
+        AdminTripServlet servlet = new AdminTripServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
+    }
+
+    @Test
+    void deleteTrip_redirects() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("delete");
+        when(ctx.req.getParameter("id")).thenReturn(String.valueOf(TestDb.TRIP_FUTURE_ID));
 
         AdminTripServlet servlet = new AdminTripServlet();
         servlet.doPost(ctx.req, ctx.resp);

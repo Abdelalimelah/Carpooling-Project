@@ -77,7 +77,7 @@ public class UserDAOImpl implements UserDAO {
 <span class="fc" id="L77">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
 <span class="fc" id="L78">            stmt.setInt(1, id);</span>
 <span class="fc" id="L79">            ResultSet rs = stmt.executeQuery();</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            if (rs.next()) {</span>
 <span class="fc" id="L81">                UserBean user = new UserBean();</span>
 <span class="fc" id="L82">                user.setId(rs.getInt(&quot;id&quot;));</span>
 <span class="fc" id="L83">                user.setEmail(rs.getString(&quot;email&quot;));</span>
@@ -89,8 +89,8 @@ public class UserDAOImpl implements UserDAO {
             }
 <span class="pc bpc" id="L90" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
 <span class="nc" id="L91">            throw new DAOException(&quot;Error finding user by ID: &quot; + id, e);</span>
-<span class="nc" id="L92">        }</span>
-<span class="nc" id="L93">        return null;</span>
+<span class="fc" id="L92">        }</span>
+<span class="fc" id="L93">        return null;</span>
     }
 
     @Override

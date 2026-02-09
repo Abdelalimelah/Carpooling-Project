@@ -55,7 +55,7 @@ public class CarDAOImpl implements CarDAO {
 <span class="fc" id="L55">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
 <span class="fc" id="L56">            stmt.setInt(1, id);</span>
 <span class="fc" id="L57">            ResultSet rs = stmt.executeQuery();</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (rs.next()) {</span>
 <span class="fc" id="L59">                CarBean car = new CarBean();</span>
 <span class="fc" id="L60">                car.setId(rs.getInt(&quot;id&quot;));</span>
 <span class="fc" id="L61">                car.setDriverId(rs.getInt(&quot;driver_id&quot;));</span>
@@ -66,8 +66,8 @@ public class CarDAOImpl implements CarDAO {
             }
 <span class="pc bpc" id="L67" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
 <span class="nc" id="L68">            throw new DAOException(&quot;Error finding car by ID: &quot; + id, e);</span>
-<span class="nc" id="L69">        }</span>
-<span class="nc" id="L70">        return null;</span>
+<span class="fc" id="L69">        }</span>
+<span class="fc" id="L70">        return null;</span>
     }
 
     public boolean update(CarBean car) throws DAOException {

@@ -18,4 +18,27 @@ class AdminFeedbackServletIT extends BaseServletTest {
 
         verify(ctx.resp).sendRedirect(anyString());
     }
+
+    @Test
+    void invalidAction_redirectsError() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("update");
+
+        AdminFeedbackServlet servlet = new AdminFeedbackServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
+    }
+
+    @Test
+    void invalidId_redirectsError() throws Exception {
+        var ctx = ctx(user(TestDb.ADMIN_USER_ID, "ADMIN"));
+        when(ctx.req.getParameter("action")).thenReturn("delete");
+        when(ctx.req.getParameter("id")).thenReturn("bad");
+
+        AdminFeedbackServlet servlet = new AdminFeedbackServlet();
+        servlet.doPost(ctx.req, ctx.resp);
+
+        verify(ctx.resp).sendRedirect(anyString());
+    }
 }

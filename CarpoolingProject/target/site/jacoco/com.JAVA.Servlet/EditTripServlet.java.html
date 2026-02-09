@@ -87,28 +87,28 @@ import java.util.List;
 <span class="nc" id="L87">                throw new Exception(&quot;Update failed&quot;);</span>
             }
             
-<span class="nc" id="L90">        } catch (Exception e) {</span>
-<span class="nc" id="L91">            e.printStackTrace();</span>
-<span class="nc" id="L92">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error: &quot; + e.getMessage());</span>
+<span class="fc" id="L90">        } catch (Exception e) {</span>
+<span class="fc" id="L91">            e.printStackTrace();</span>
+<span class="fc" id="L92">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error: &quot; + e.getMessage());</span>
             
             try {
-<span class="nc" id="L95">                int tripId = Integer.parseInt(request.getParameter(&quot;id&quot;));</span>
-<span class="nc" id="L96">                DAOFactory daoFactory = DAOFactory.getInstance();</span>
-<span class="nc" id="L97">                conn = daoFactory.getConnection();</span>
+<span class="fc" id="L95">                int tripId = Integer.parseInt(request.getParameter(&quot;id&quot;));</span>
+<span class="fc" id="L96">                DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L97">                conn = daoFactory.getConnection();</span>
                 
-<span class="nc" id="L99">                TripDAO tripDAO = new TripDAOImpl(conn);</span>
-<span class="nc" id="L100">                TripBean trip = tripDAO.findById(tripId);</span>
+<span class="fc" id="L99">                TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L100">                TripBean trip = tripDAO.findById(tripId);</span>
                 
-<span class="nc bnc" id="L102" title="All 2 branches missed.">                if (trip != null) {</span>
-<span class="nc" id="L103">                    CarDAO carDAO = new CarDAOImpl(conn);</span>
-<span class="nc" id="L104">                    List&lt;CarBean&gt; cars = carDAO.findByDriverId(trip.getDriverId());</span>
-<span class="nc" id="L105">                    request.setAttribute(&quot;trip&quot;, trip);</span>
-<span class="nc" id="L106">                    request.setAttribute(&quot;cars&quot;, cars);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                if (trip != null) {</span>
+<span class="fc" id="L103">                    CarDAO carDAO = new CarDAOImpl(conn);</span>
+<span class="fc" id="L104">                    List&lt;CarBean&gt; cars = carDAO.findByDriverId(trip.getDriverId());</span>
+<span class="fc" id="L105">                    request.setAttribute(&quot;trip&quot;, trip);</span>
+<span class="fc" id="L106">                    request.setAttribute(&quot;cars&quot;, cars);</span>
                 }
 <span class="nc" id="L108">            } catch (Exception ex) {</span>
 <span class="nc" id="L109">                ex.printStackTrace();</span>
-<span class="nc" id="L110">            }</span>
-<span class="nc" id="L111">            request.getRequestDispatcher(&quot;/views/driver/editTrip.jsp&quot;).forward(request, response);</span>
+<span class="fc" id="L110">            }</span>
+<span class="fc" id="L111">            request.getRequestDispatcher(&quot;/views/driver/editTrip.jsp&quot;).forward(request, response);</span>
         } finally {
 <span class="pc bpc" id="L113" title="1 of 2 branches missed.">            if (conn != null) {</span>
                 try {
