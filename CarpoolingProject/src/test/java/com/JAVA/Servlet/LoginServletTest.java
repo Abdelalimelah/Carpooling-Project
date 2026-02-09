@@ -25,7 +25,7 @@ class LoginServletTest {
         when(request.getParameter("password")).thenReturn("pass1");
         when(request.getSession()).thenReturn(session);
         when(request.getMethod()).thenReturn("POST"); // Pour que service() appelle doPost()
-        
+
         // Empêcher le NullPointerException sur le forward/include
         when(request.getRequestDispatcher(anyString())).thenReturn(dispatcher);
 
@@ -34,9 +34,10 @@ class LoginServletTest {
         servlet.service(request, response); // Utiliser service() est plus sûr
 
         // 4. Vérifications
-        // Note: Selon votre code, soit il fait un redirect, soit un forward. 
+        // Note: Selon votre code, soit il fait un redirect, soit un forward.
         // J'ai laissé votre vérification originale.
-        // Si ça échoue, vérifiez si votre servlet fait un forward au lieu d'un redirect.
+        // Si ça échoue, vérifiez si votre servlet fait un forward au lieu d'un
+        // redirect.
     }
 
     @Test
@@ -62,8 +63,8 @@ class LoginServletTest {
         servlet.service(request, response);
 
         // 4. Vérifications
-        verify(request).setAttribute(eq("error"), anyString());
+        verify(request).setAttribute(eq("errorMessage"), anyString());
         // On vérifie que le dispatcher a bien été appelé pour forwarder
-        verify(dispatcher).forward(request, response); 
+        verify(dispatcher).forward(request, response);
     }
 }

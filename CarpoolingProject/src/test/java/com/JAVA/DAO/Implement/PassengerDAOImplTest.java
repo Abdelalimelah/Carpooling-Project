@@ -16,20 +16,20 @@ class PassengerDAOImplTest {
         connection = DriverManager.getConnection("jdbc:h2:mem:testdb_passenger;DB_CLOSE_DELAY=-1");
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("""
-                CREATE TABLE User (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    email VARCHAR(255),
-                    first_name VARCHAR(255),
-                    last_name VARCHAR(255),
-                    phone_number VARCHAR(255),
-                    role VARCHAR(50),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-                CREATE TABLE Passenger (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    user_id INT
-                );
-            """);
+                        CREATE TABLE \"User\" (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            email VARCHAR(255),
+                            first_name VARCHAR(255),
+                            last_name VARCHAR(255),
+                            phone_number VARCHAR(255),
+                            role VARCHAR(50),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        );
+                        CREATE TABLE Passenger (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            user_id INT
+                        );
+                    """);
         }
     }
 
@@ -49,7 +49,8 @@ class PassengerDAOImplTest {
 
     private int insertUser() throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO User (email, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+                "INSERT INTO User (email, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, "test@mail.com");
             ps.setString(2, "First");
             ps.setString(3, "Last");
@@ -57,7 +58,8 @@ class PassengerDAOImplTest {
             ps.setString(5, "PASSENGER");
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next())
+                    return rs.getInt(1);
             }
         }
         throw new SQLException("User insert failed");

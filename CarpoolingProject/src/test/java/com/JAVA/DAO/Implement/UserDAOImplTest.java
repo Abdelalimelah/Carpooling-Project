@@ -16,17 +16,17 @@ class UserDAOImplTest {
         connection = DriverManager.getConnection("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("""
-                CREATE TABLE user (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    email VARCHAR(255) UNIQUE,
-                    password_hash VARCHAR(255),
-                    first_name VARCHAR(255),
-                    last_name VARCHAR(255),
-                    phone_number VARCHAR(255),
-                    role VARCHAR(50),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """);
+                        CREATE TABLE \"User\" (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            email VARCHAR(255) UNIQUE,
+                            password_hash VARCHAR(255),
+                            first_name VARCHAR(255),
+                            last_name VARCHAR(255),
+                            phone_number VARCHAR(255),
+                            role VARCHAR(50),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """);
         }
     }
 
