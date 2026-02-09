@@ -7,13 +7,14 @@ import static org.mockito.Mockito.*;
 
 class PassengerDashboardServletIT {
     @Test
-    void testDashboardAccess() throws Exception {
+    void testPassengerDashboard() throws Exception {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession(false)).thenReturn(session);
+        when(request.getMethod()).thenReturn("GET");
         PassengerDashboardServlet servlet = new PassengerDashboardServlet();
-        servlet.doGet(request, response);
+        servlet.service(request, response);
         verify(request, atLeastOnce()).getRequestDispatcher(anyString());
     }
 }

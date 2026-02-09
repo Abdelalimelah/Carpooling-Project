@@ -7,13 +7,14 @@ import static org.mockito.Mockito.*;
 
 class ProfileServletIT {
     @Test
-    void testProfileAccess() throws Exception {
+    void testProfile() throws Exception {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession(false)).thenReturn(session);
+        when(request.getMethod()).thenReturn("GET");
         ProfileServlet servlet = new ProfileServlet();
-        servlet.doGet(request, response);
+        servlet.service(request, response);
         verify(request, atLeastOnce()).getRequestDispatcher(anyString());
     }
 }

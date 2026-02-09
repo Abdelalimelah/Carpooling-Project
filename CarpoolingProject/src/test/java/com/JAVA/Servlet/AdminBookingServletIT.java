@@ -12,8 +12,9 @@ class AdminBookingServletIT {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession(false)).thenReturn(session);
+        when(request.getMethod()).thenReturn("GET");
         AdminBookingServlet servlet = new AdminBookingServlet();
-        servlet.doGet(request, response);
+        servlet.service(request, response);
         verify(request, atLeastOnce()).getRequestDispatcher(anyString());
     }
 }

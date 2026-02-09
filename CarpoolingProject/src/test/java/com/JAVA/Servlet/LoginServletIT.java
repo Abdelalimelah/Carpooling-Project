@@ -14,8 +14,9 @@ class LoginServletIT {
         when(request.getParameter("username")).thenReturn("user1");
         when(request.getParameter("password")).thenReturn("pass1");
         when(request.getSession()).thenReturn(session);
+        when(request.getMethod()).thenReturn("POST");
         LoginServlet servlet = new LoginServlet();
-        servlet.doPost(request, response);
+        servlet.service(request, response);
         verify(session, atLeastOnce()).setAttribute(eq("user"), any());
         verify(response, atLeastOnce()).sendRedirect(anyString());
     }

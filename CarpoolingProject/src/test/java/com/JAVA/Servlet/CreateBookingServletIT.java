@@ -12,8 +12,9 @@ class CreateBookingServletIT {
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession(false)).thenReturn(session);
+        when(request.getMethod()).thenReturn("POST");
         CreateBookingServlet servlet = new CreateBookingServlet();
-        servlet.doPost(request, response);
+        servlet.service(request, response);
         verify(response, atLeastOnce()).sendRedirect(anyString());
     }
 }

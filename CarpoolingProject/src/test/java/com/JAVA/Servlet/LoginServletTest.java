@@ -36,9 +36,10 @@ class LoginServletTest {
         when(request.getParameter("username")).thenReturn("wrong");
         when(request.getParameter("password")).thenReturn("wrong");
         when(request.getSession()).thenReturn(session);
+        when(request.getMethod()).thenReturn("POST");
 
         LoginServlet servlet = new LoginServlet();
-        servlet.doPost(request, response);
+        servlet.service(request, response);
 
         verify(request).setAttribute(eq("error"), anyString());
         verify(request).getRequestDispatcher(anyString());

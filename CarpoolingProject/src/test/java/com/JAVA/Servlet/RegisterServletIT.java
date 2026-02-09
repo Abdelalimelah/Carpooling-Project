@@ -11,11 +11,10 @@ class RegisterServletIT {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
-        when(request.getParameter("email")).thenReturn("test@mail.com");
-        when(request.getParameter("password")).thenReturn("pass");
-        when(request.getSession()).thenReturn(session);
+        when(request.getSession(false)).thenReturn(session);
+        when(request.getMethod()).thenReturn("POST");
         RegisterServlet servlet = new RegisterServlet();
-        servlet.doPost(request, response);
+        servlet.service(request, response);
         verify(response, atLeastOnce()).sendRedirect(anyString());
     }
 }
