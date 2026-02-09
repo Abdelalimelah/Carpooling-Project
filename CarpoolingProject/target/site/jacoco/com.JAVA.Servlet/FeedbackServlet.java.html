@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FeedbackServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">FeedbackServlet.java</span></div><h1>FeedbackServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Connection;
+
+@WebServlet(&quot;/feedback&quot;)
+<span class="fc" id="L17">public class FeedbackServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+    
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+<span class="fc" id="L23">        	HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L24">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+        			
+<span class="fc" id="L26">            String tripIdStr = request.getParameter(&quot;tripId&quot;);</span>
+<span class="fc" id="L27">            String targetIdStr = request.getParameter(&quot;targetId&quot;);</span>
+<span class="fc" id="L28">            String type = request.getParameter(&quot;type&quot;);</span>
+            
+<span class="pc bpc" id="L30" title="3 of 6 branches missed.">            if (tripIdStr == null || targetIdStr == null || type == null ||</span>
+<span class="pc bpc" id="L31" title="3 of 4 branches missed.">                (!&quot;DRIVER&quot;.equals(type) &amp;&amp; !&quot;PASSENGER&quot;.equals(type))) {</span>
+<span class="nc" id="L32">                response.sendError(HttpServletResponse.SC_BAD_REQUEST, &quot;Missing parameters&quot;);</span>
+<span class="nc" id="L33">                return;</span>
+            }
+            
+<span class="fc" id="L36">            int tripId = Integer.parseInt(tripIdStr);</span>
+<span class="fc" id="L37">            int targetId = Integer.parseInt(targetIdStr);</span>
+            
+<span class="fc" id="L39">            request.setAttribute(&quot;role&quot;, user.getRole());</span>
+<span class="fc" id="L40">            request.setAttribute(&quot;tripId&quot;, tripId);</span>
+<span class="fc" id="L41">            request.setAttribute(&quot;targetId&quot;, targetId);</span>
+<span class="fc" id="L42">            request.setAttribute(&quot;feedbackType&quot;, type);</span>
+            
+<span class="fc" id="L44">            request.getRequestDispatcher(&quot;/views/feedback/form.jsp&quot;).forward(request, response);</span>
+            
+<span class="nc" id="L46">        } catch (Exception e) {</span>
+<span class="nc" id="L47">            e.printStackTrace();</span>
+<span class="nc" id="L48">            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, &quot;Error loading form&quot;);</span>
+<span class="fc" id="L49">        }</span>
+<span class="fc" id="L50">    }</span>
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L54">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L56">            int tripId = Integer.parseInt(request.getParameter(&quot;tripId&quot;));</span>
+<span class="fc" id="L57">            int targetId = Integer.parseInt(request.getParameter(&quot;targetId&quot;));</span>
+<span class="fc" id="L58">            String feedbackType = request.getParameter(&quot;feedbackType&quot;); </span>
+<span class="fc" id="L59">            int rating = Integer.parseInt(request.getParameter(&quot;rating&quot;));</span>
+<span class="fc" id="L60">            String comment = request.getParameter(&quot;comment&quot;);</span>
+            
+<span class="fc" id="L62">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L63">            UserBean author = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+            
+<span class="pc bpc" id="L65" title="2 of 4 branches missed.">            if (rating &lt; 1 || rating &gt; 5 || </span>
+<span class="pc bpc" id="L66" title="3 of 4 branches missed.">                (!&quot;DRIVER&quot;.equals(feedbackType) &amp;&amp; !&quot;PASSENGER&quot;.equals(feedbackType))) {</span>
+<span class="nc" id="L67">                throw new Exception(&quot;Invalid input&quot;);</span>
+            }
+            
+<span class="fc" id="L70">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L71">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L73">            FeedbackDAO feedbackDAO = new FeedbackDAOImpl(conn);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            if (feedbackDAO.existsByAuthorAndTargetAndTrip(author.getId(), targetId, tripId)) {</span>
+<span class="nc" id="L75">                throw new Exception(&quot;You already reviewed this trip&quot;);</span>
+            }
+            
+<span class="fc" id="L78">            FeedbackBean feedback = new FeedbackBean();</span>
+<span class="fc" id="L79">            feedback.setAuthorId(author.getId());</span>
+<span class="fc" id="L80">            feedback.setTargetId(targetId);</span>
+<span class="fc" id="L81">            feedback.setFeedbackType(feedbackType);</span>
+<span class="fc" id="L82">            feedback.setRating(rating);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            feedback.setComment(comment != null ? comment.trim() : &quot;&quot;);</span>
+<span class="fc" id="L84">            feedback.setTripId(tripId);</span>
+            
+<span class="fc" id="L86">            feedbackDAO.create(feedback);</span>
+            
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            String redirectUrl = &quot;PASSENGER&quot;.equals(author.getRole()) </span>
+<span class="fc" id="L89">                ? &quot;/passenger/dashboard&quot; </span>
+<span class="pc" id="L90">                : &quot;/driver/dashboard&quot;;</span>
+<span class="fc" id="L91">            response.sendRedirect(request.getContextPath() + redirectUrl + &quot;?feedbackSubmitted=1&quot;);</span>
+            
+<span class="nc" id="L93">        } catch (Exception e) {</span>
+<span class="nc" id="L94">            e.printStackTrace();</span>
+<span class="nc" id="L95">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L96">            request.setAttribute(&quot;tripId&quot;, request.getParameter(&quot;tripId&quot;));</span>
+<span class="nc" id="L97">            request.setAttribute(&quot;targetId&quot;, request.getParameter(&quot;targetId&quot;));</span>
+<span class="nc" id="L98">            request.setAttribute(&quot;feedbackType&quot;, request.getParameter(&quot;feedbackType&quot;));</span>
+<span class="nc" id="L99">            request.getRequestDispatcher(&quot;/views/feedback/form.jsp&quot;).forward(request, response);</span>
+        } finally {
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L103">                    conn.close();</span>
+<span class="nc" id="L104">                } catch (Exception e) {</span>
+<span class="nc" id="L105">                    e.printStackTrace();</span>
+<span class="fc" id="L106">                }</span>
+            }
+        }
+<span class="fc" id="L109">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

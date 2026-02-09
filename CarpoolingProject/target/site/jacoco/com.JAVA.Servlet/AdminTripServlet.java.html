@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminTripServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">AdminTripServlet.java</span></div><h1>AdminTripServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.Exception.DAOException;
+import com.JAVA.DAO.Implement.BookingDAOImpl;
+import com.JAVA.DAO.Implement.TripDAOImpl;
+import com.JAVA.DAO.Implement.DriverDAOImpl;
+import com.JAVA.DAO.Implement.UserDAOImpl;
+import com.JAVA.DAO.Implement.CarDAOImpl;
+import com.JAVA.Beans.BookingBean;
+import com.JAVA.Beans.TripBean;
+import com.JAVA.Beans.UserBean;
+import com.JAVA.Beans.CarBean;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@WebServlet(&quot;/admin/trips&quot;)
+<span class="fc" id="L25">public class AdminTripServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+<span class="fc" id="L31">        String action = req.getParameter(&quot;action&quot;);</span>
+<span class="fc" id="L32">        String ret = req.getContextPath() + &quot;/admin/dashboard&quot;;</span>
+
+<span class="pc bpc" id="L34" title="3 of 4 branches missed.">        if (!&quot;view&quot;.equals(action) &amp;&amp; !&quot;edit&quot;.equals(action)) {</span>
+<span class="nc" id="L35">            resp.sendRedirect(ret + &quot;?error=Unknown%20action&quot;);</span>
+<span class="nc" id="L36">            return;</span>
+        }
+
+<span class="fc" id="L39">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L41">            DAOFactory f = DAOFactory.getInstance();</span>
+<span class="fc" id="L42">            conn = f.getConnection();</span>
+
+<span class="fc" id="L44">            TripDAOImpl tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L45">            DriverDAOImpl driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L46">            UserDAOImpl userDAO = new UserDAOImpl(conn);</span>
+<span class="fc" id="L47">            CarDAOImpl carDAO = new CarDAOImpl(conn);</span>
+<span class="fc" id="L48">            BookingDAOImpl bookingDAO = new BookingDAOImpl(conn);</span>
+
+<span class="fc" id="L50">            int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
+
+<span class="fc" id="L52">            TripBean trip = tripDAO.findById(id);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">            if (trip == null) {</span>
+<span class="nc" id="L54">                resp.sendRedirect(ret + &quot;?error=Trip%20not%20found&quot;);</span>
+<span class="nc" id="L55">                return;</span>
+            }
+
+            // Optional: resolve driver user + car to display in view/edit pages
+<span class="fc" id="L59">            int driverUserId = driverDAO.findUserIdByDriverId(trip.getDriverId());</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            UserBean driverUser = (driverUserId &gt; 0) ? userDAO.findById(driverUserId) : null;</span>
+<span class="fc" id="L61">            CarBean car = carDAO.findById(trip.getCarId());</span>
+<span class="fc" id="L62">            List&lt;BookingBean&gt; bookings = bookingDAO.findByTripId(id);</span>
+
+<span class="fc" id="L64">            req.setAttribute(&quot;trip&quot;, trip);</span>
+<span class="fc" id="L65">            req.setAttribute(&quot;driverUser&quot;, driverUser);</span>
+<span class="fc" id="L66">            req.setAttribute(&quot;car&quot;, car);</span>
+<span class="fc" id="L67">            req.setAttribute(&quot;bookings&quot;, bookings);</span>
+<span class="fc" id="L68">            req.setAttribute(&quot;ret&quot;, ret);</span>
+
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">            if (&quot;view&quot;.equals(action)) {</span>
+<span class="fc" id="L71">                req.getRequestDispatcher(&quot;/views/admin/trips/view.jsp&quot;).forward(req, resp);</span>
+            } else { // edit
+<span class="nc" id="L73">                req.getRequestDispatcher(&quot;/views/admin/trips/edit.jsp&quot;).forward(req, resp);</span>
+            }
+
+<span class="nc" id="L76">        } catch (Exception e) {</span>
+<span class="nc" id="L77">            e.printStackTrace();</span>
+<span class="nc" id="L78">            resp.sendRedirect(ret + &quot;?error=Failed%20to%20load%20trip&quot;);</span>
+        } finally {
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            if (conn != null) try { conn.close(); } catch (Exception ignore) {}</span>
+        }
+<span class="fc" id="L82">    }</span>
+
+    @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+<span class="fc" id="L87">        String action = req.getParameter(&quot;action&quot;);</span>
+<span class="fc" id="L88">        String ret = req.getContextPath() + &quot;/admin/dashboard&quot;;</span>
+
+<span class="fc" id="L90">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L92">            DAOFactory f = DAOFactory.getInstance();</span>
+<span class="fc" id="L93">            conn = f.getConnection();</span>
+<span class="fc" id="L94">            conn.setAutoCommit(false);</span>
+
+<span class="fc" id="L96">            TripDAOImpl tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L97">            BookingDAOImpl bookingDAO = new BookingDAOImpl(conn);</span>
+
+<span class="fc" id="L99">            int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
+
+<span class="pc bpc" id="L101" title="4 of 6 branches missed.">            switch (action == null ? &quot;&quot; : action) {</span>
+                case &quot;delete&quot;: {
+<span class="nc" id="L103">                    boolean ok = tripDAO.delete(id);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                    if (!ok) throw new DAOException(new RuntimeException(&quot;Delete failed&quot;));</span>
+<span class="nc" id="L105">                    conn.commit();</span>
+<span class="nc" id="L106">                    resp.sendRedirect(ret + &quot;?success=Trip%20deleted&quot;);</span>
+<span class="nc" id="L107">                    return;</span>
+                }
+                case &quot;forceComplete&quot;: {
+                    // If already completed, do nothing
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    if (bookingDAO.tripIsCompleted(id)) {</span>
+<span class="nc" id="L112">                        conn.rollback();</span>
+<span class="nc" id="L113">                        resp.sendRedirect(ret + &quot;?info=Trip%20already%20completed&quot;);</span>
+<span class="nc" id="L114">                        return;</span>
+                    }
+<span class="nc" id="L116">                    List&lt;BookingBean&gt; bookings = bookingDAO.findByTripId(id);</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">                    if (bookings == null || bookings.isEmpty()) {</span>
+<span class="nc" id="L118">                        conn.rollback();</span>
+<span class="nc" id="L119">                        resp.sendRedirect(ret + &quot;?error=Cannot%20complete%20a%20trip%20with%20no%20bookings&quot;);</span>
+<span class="nc" id="L120">                        return;</span>
+                    }
+<span class="nc" id="L122">                    bookingDAO.markTripAsCompleted(id);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                    if (!bookingDAO.tripIsCompleted(id)) {</span>
+<span class="nc" id="L124">                        conn.rollback();</span>
+<span class="nc" id="L125">                        resp.sendRedirect(ret + &quot;?error=No%20eligible%20bookings%20to%20mark%20completed&quot;);</span>
+<span class="nc" id="L126">                        return;</span>
+                    }
+<span class="nc" id="L128">                    conn.commit();</span>
+<span class="nc" id="L129">                    resp.sendRedirect(ret + &quot;?success=Trip%20forced%20to%20COMPLETED&quot;);</span>
+<span class="nc" id="L130">                    return;</span>
+                }
+                case &quot;update&quot;: {
+                    // Update basic fields (keep driver/car as-is unless you want to allow changes)
+<span class="fc" id="L134">                    TripBean t = tripDAO.findById(id);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">                    if (t == null) throw new DAOException(new IllegalArgumentException(&quot;Trip not found&quot;));</span>
+
+<span class="fc" id="L137">                    String departureCity = req.getParameter(&quot;departureCity&quot;);</span>
+<span class="fc" id="L138">                    String arrivalCity   = req.getParameter(&quot;arrivalCity&quot;);</span>
+<span class="fc" id="L139">                    String dateTimeStr   = req.getParameter(&quot;dateTime&quot;); // &quot;yyyy-MM-dd'T'HH:mm&quot;</span>
+<span class="fc" id="L140">                    String priceStr      = req.getParameter(&quot;price&quot;);</span>
+<span class="fc" id="L141">                    String seatsStr      = req.getParameter(&quot;seatsAvailable&quot;);</span>
+<span class="fc" id="L142">                    String carIdStr      = req.getParameter(&quot;carId&quot;); // optional</span>
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">                    if (departureCity != null) t.setDepartureCity(departureCity.trim());</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">                    if (arrivalCity   != null) t.setArrivalCity(arrivalCity.trim());</span>
+<span class="pc bpc" id="L146" title="2 of 4 branches missed.">                    if (dateTimeStr   != null &amp;&amp; !dateTimeStr.isBlank()) {</span>
+<span class="fc" id="L147">                        LocalDateTime dt = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd'T'HH:mm&quot;));</span>
+<span class="fc" id="L148">                        t.setDateTime(dt);</span>
+                    }
+<span class="pc bpc" id="L150" title="2 of 4 branches missed.">                    if (priceStr != null &amp;&amp; !priceStr.isBlank()) {</span>
+<span class="fc" id="L151">                        t.setPrice(new java.math.BigDecimal(priceStr));</span>
+                    }
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">                    if (seatsStr != null &amp;&amp; !seatsStr.isBlank()) {</span>
+<span class="fc" id="L154">                        t.setSeatsAvailable(Byte.parseByte(seatsStr));</span>
+                    }
+<span class="pc bpc" id="L156" title="2 of 4 branches missed.">                    if (carIdStr != null &amp;&amp; !carIdStr.isBlank()) {</span>
+<span class="fc" id="L157">                        t.setCarId(Integer.parseInt(carIdStr));</span>
+                    }
+
+<span class="fc" id="L160">                    boolean ok = tripDAO.update(t);</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                    if (!ok) throw new DAOException(new RuntimeException(&quot;Update failed&quot;));</span>
+
+<span class="fc" id="L163">                    conn.commit();</span>
+<span class="fc" id="L164">                    resp.sendRedirect(ret + &quot;?success=Trip%20updated&quot;);</span>
+<span class="fc" id="L165">                    return;</span>
+                }
+                default: {
+<span class="nc" id="L168">                    conn.rollback();</span>
+<span class="nc" id="L169">                    resp.sendRedirect(ret + &quot;?error=Unknown%20action&quot;);</span>
+                }
+            }
+
+<span class="nc" id="L173">        } catch (Exception e) {</span>
+<span class="nc" id="L174">            e.printStackTrace();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            try { if (conn != null) conn.rollback(); } catch (Exception ignore) {}</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            resp.sendRedirect((ret != null ? ret : (req.getContextPath()+&quot;/admin/dashboard&quot;))</span>
+                    + &quot;&amp;error=Operation%20failed&quot;);
+        } finally {
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">            if (conn != null) try { conn.close(); } catch (Exception ignore) {}</span>
+        }
+<span class="nc" id="L181">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

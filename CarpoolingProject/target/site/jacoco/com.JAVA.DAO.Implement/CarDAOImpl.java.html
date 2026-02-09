@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CarDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.DAO.Implement</a> &gt; <span class="el_source">CarDAOImpl.java</span></div><h1>CarDAOImpl.java</h1><pre class="source lang-java linenums">package com.JAVA.DAO.Implement;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.JAVA.Beans.CarBean;
+import com.JAVA.DAO.CarDAO;
+import com.JAVA.DAO.Exception.DAOException;
+
+public class CarDAOImpl implements CarDAO {
+    private Connection connection;
+
+<span class="fc" id="L14">    public CarDAOImpl(Connection connection) {</span>
+<span class="fc" id="L15">        this.connection = connection;</span>
+<span class="fc" id="L16">    }</span>
+
+    public boolean create(CarBean car) throws DAOException {
+<span class="fc" id="L19">        String sql = &quot;INSERT INTO Car (brand, model, plate_number, driver_id) VALUES (?, ?, ?, ?)&quot;;</span>
+<span class="fc" id="L20">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L21">            stmt.setString(1, car.getBrand());</span>
+<span class="fc" id="L22">            stmt.setString(2, car.getModel());</span>
+<span class="fc" id="L23">            stmt.setString(3, car.getPlateNumber());</span>
+<span class="fc" id="L24">            stmt.setInt(4, car.getDriverId());</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L26">        } catch (SQLException e) {</span>
+<span class="nc" id="L27">            throw new DAOException(&quot;Error creating car&quot;, e);</span>
+        }
+    }
+    
+
+    public List&lt;CarBean&gt; findByDriverId(int driverId) throws DAOException {
+<span class="fc" id="L33">        List&lt;CarBean&gt; cars = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L34">        String sql = &quot;SELECT * FROM Car WHERE driver_id = ?&quot;;</span>
+<span class="fc" id="L35">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L36">            stmt.setInt(1, driverId);</span>
+<span class="fc" id="L37">            ResultSet rs = stmt.executeQuery();</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L39">                CarBean car = new CarBean();</span>
+<span class="fc" id="L40">                car.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L41">                car.setDriverId(rs.getInt(&quot;driver_id&quot;));</span>
+<span class="fc" id="L42">                car.setBrand(rs.getString(&quot;brand&quot;));</span>
+<span class="fc" id="L43">                car.setModel(rs.getString(&quot;model&quot;));</span>
+<span class="fc" id="L44">                car.setPlateNumber(rs.getString(&quot;plate_number&quot;));</span>
+<span class="fc" id="L45">                cars.add(car);</span>
+<span class="fc" id="L46">            }</span>
+<span class="nc" id="L47">        } catch (SQLException e) {</span>
+<span class="nc" id="L48">            throw new DAOException(&quot;Error finding cars by driver ID: &quot; + driverId, e);</span>
+<span class="fc" id="L49">        }</span>
+<span class="fc" id="L50">        return cars;</span>
+    }
+
+    public CarBean findById(int id) throws DAOException {
+<span class="fc" id="L54">        String sql = &quot;SELECT * FROM Car WHERE id = ?&quot;;</span>
+<span class="fc" id="L55">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L56">            stmt.setInt(1, id);</span>
+<span class="fc" id="L57">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L59">                CarBean car = new CarBean();</span>
+<span class="fc" id="L60">                car.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L61">                car.setDriverId(rs.getInt(&quot;driver_id&quot;));</span>
+<span class="fc" id="L62">                car.setBrand(rs.getString(&quot;brand&quot;));</span>
+<span class="fc" id="L63">                car.setModel(rs.getString(&quot;model&quot;));</span>
+<span class="fc" id="L64">                car.setPlateNumber(rs.getString(&quot;plate_number&quot;));</span>
+<span class="fc" id="L65">                return car;</span>
+            }
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L68">            throw new DAOException(&quot;Error finding car by ID: &quot; + id, e);</span>
+<span class="nc" id="L69">        }</span>
+<span class="nc" id="L70">        return null;</span>
+    }
+
+    public boolean update(CarBean car) throws DAOException {
+<span class="fc" id="L74">        String sql = &quot;UPDATE Car SET brand = ?, model = ?, plate_number = ? WHERE id = ?&quot;;</span>
+<span class="fc" id="L75">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L76">            stmt.setString(1, car.getBrand());</span>
+<span class="fc" id="L77">            stmt.setString(2, car.getModel());</span>
+<span class="fc" id="L78">            stmt.setString(3, car.getPlateNumber());</span>
+<span class="fc" id="L79">            stmt.setInt(4, car.getId());</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L81">        } catch (SQLException e) {</span>
+<span class="nc" id="L82">            throw new DAOException(&quot;Error updating car with ID: &quot; + car.getId(), e);</span>
+        }
+    }
+
+    public boolean delete(int id) throws DAOException {
+<span class="fc" id="L87">        String sql = &quot;DELETE FROM Car WHERE id = ?&quot;;</span>
+<span class="fc" id="L88">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L89">            stmt.setInt(1, id);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L91">        } catch (SQLException e) {</span>
+<span class="nc" id="L92">            throw new DAOException(&quot;Error deleting car with ID: &quot; + id, e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarkAllReadServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">MarkAllReadServlet.java</span></div><h1>MarkAllReadServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Connection;
+
+@WebServlet(&quot;/notifications/mark-read&quot;)
+<span class="fc" id="L17">public class MarkAllReadServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="fc" id="L22">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L24">            HttpSession session = req.getSession();</span>
+<span class="fc" id="L25">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L26">            int userId = user.getId();</span>
+            
+<span class="fc" id="L28">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L29">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L31">            NotificationDAO notificationDAO = new NotificationDAOImpl(conn);</span>
+<span class="fc" id="L32">            notificationDAO.markAllAsRead(userId);</span>
+<span class="fc" id="L33">            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);</span>
+<span class="nc" id="L34">        } catch (Exception e) {</span>
+<span class="nc" id="L35">            resp.sendError(500, &quot;Failed to mark as read&quot;);</span>
+        } finally {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L39">                    conn.close();</span>
+<span class="nc" id="L40">                } catch (Exception e) {</span>
+<span class="nc" id="L41">                    e.printStackTrace();</span>
+<span class="fc" id="L42">                }</span>
+            }
+        }
+<span class="fc" id="L45">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

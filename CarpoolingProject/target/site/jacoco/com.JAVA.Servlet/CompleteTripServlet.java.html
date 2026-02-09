@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompleteTripServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">CompleteTripServlet.java</span></div><h1>CompleteTripServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.List;
+
+@WebServlet(&quot;/driver/trips/complete&quot;)
+<span class="fc" id="L17">public class CompleteTripServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L22">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L24">            int tripId = Integer.parseInt(request.getParameter(&quot;id&quot;));</span>
+            
+<span class="fc" id="L26">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L27">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L29">            TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L30">            TripBean trip = tripDAO.findById(tripId);</span>
+            
+<span class="fc" id="L32">            BookingDAO bookingDAO = new BookingDAOImpl(conn);</span>
+<span class="fc" id="L33">            bookingDAO.markTripAsCompleted(tripId);</span>
+            
+<span class="fc" id="L35">            List&lt;BookingBean&gt; bookings = bookingDAO.findByTripId(tripId);</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">            for (BookingBean booking : bookings) {</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">                if (&quot;COMPLETED&quot;.equals(booking.getStatus())) {</span>
+<span class="fc" id="L39">                    PassengerDAO passengerDAO = new PassengerDAOImpl(conn);</span>
+<span class="fc" id="L40">                    int passengerUserId = passengerDAO.findUserIdByPassengerId(booking.getPassengerId());</span>
+                    
+<span class="fc" id="L42">                    DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L43">                    int driverUserId = driverDAO.findUserIdByDriverId(trip.getDriverId());</span>
+
+<span class="fc" id="L45">                    NotificationDAO notifDAO = new NotificationDAOImpl(conn);</span>
+<span class="fc" id="L46">                    NotificationBean notification = new NotificationBean();</span>
+<span class="fc" id="L47">                    notification.setUserId(passengerUserId);</span>
+<span class="fc" id="L48">                    notification.setType(&quot;TRIP_COMPLETED&quot;);</span>
+
+<span class="fc" id="L50">                    notification.setMessage(</span>
+                        &quot;Trip completed. Please rate your driver for &quot; +
+<span class="fc" id="L52">                        trip.getDepartureCity() + &quot; → &quot; + trip.getArrivalCity() +</span>
+<span class="fc" id="L53">                        &quot; on &quot; + trip.getDateTime().toLocalDate() + &quot;.&quot;</span>
+                    );
+
+<span class="fc" id="L56">                    String rateUrl = request.getContextPath()</span>
+                        + &quot;/feedback?tripId=&quot; + tripId
+                        + &quot;&amp;targetId=&quot; + driverUserId
+                        + &quot;&amp;type=DRIVER&quot;;
+
+<span class="fc" id="L61">                    notification.setMetadata(&quot;{\&quot;url\&quot;:\&quot;&quot; + rateUrl + &quot;\&quot;,\&quot;cta\&quot;:\&quot;Rate driver\&quot;,\&quot;tripId\&quot;:&quot; + tripId + &quot;,\&quot;driverUserId\&quot;:&quot; + driverUserId + &quot;}&quot;);</span>
+<span class="fc" id="L62">                    notifDAO.create(notification);</span>
+                }
+<span class="fc" id="L64">            }</span>
+            
+<span class="fc" id="L66">            response.sendRedirect(request.getContextPath() + &quot;/driver/trips/details?id=&quot; + tripId + &quot;&amp;tripCompleted=1&quot;);</span>
+            
+<span class="nc" id="L68">        } catch (Exception e) {</span>
+<span class="nc" id="L69">            e.printStackTrace();</span>
+<span class="nc" id="L70">            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, &quot;Error completing trip: &quot; + e.getMessage());</span>
+        } finally {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L74">                    conn.close();</span>
+<span class="nc" id="L75">                } catch (Exception e) {</span>
+<span class="nc" id="L76">                    e.printStackTrace();</span>
+<span class="fc" id="L77">                }</span>
+            }
+        }
+<span class="fc" id="L80">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

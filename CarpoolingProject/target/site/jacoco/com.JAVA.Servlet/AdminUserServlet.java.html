@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminUserServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">AdminUserServlet.java</span></div><h1>AdminUserServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.Beans.DriverBean;
+import com.JAVA.Beans.PassengerBean;
+import com.JAVA.Beans.UserBean;
+import com.JAVA.DAO.Exception.DAOException;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.Implement.DriverDAOImpl;
+import com.JAVA.DAO.Implement.PassengerDAOImpl;
+import com.JAVA.DAO.Implement.UserDAOImpl;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.sql.Connection;
+
+@WebServlet(&quot;/admin/users&quot;)
+<span class="fc" id="L18">public class AdminUserServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+<span class="fc" id="L23">        String action = req.getParameter(&quot;action&quot;);</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (!&quot;edit&quot;.equals(action)) {</span>
+<span class="nc" id="L25">            resp.sendError(404);</span>
+<span class="nc" id="L26">            return;</span>
+        }
+<span class="fc" id="L28">        int userId = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
+
+<span class="fc" id="L30">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L32">            DAOFactory f = DAOFactory.getInstance();</span>
+<span class="fc" id="L33">            conn = f.getConnection();</span>
+<span class="fc" id="L34">            UserDAOImpl userDAO = new UserDAOImpl(conn);</span>
+<span class="fc" id="L35">            DriverDAOImpl driverDAO = new DriverDAOImpl(conn);</span>
+
+<span class="fc" id="L37">            UserBean user = userDAO.findById(userId);</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            if (user == null) {</span>
+<span class="nc" id="L39">                resp.sendRedirect(req.getContextPath()+&quot;/views/error.jsp?msg=User not found&quot;);</span>
+<span class="nc" id="L40">                return;</span>
+            }
+
+<span class="fc" id="L43">            String licenceNumber = null;</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">            if (&quot;DRIVER&quot;.equals(user.getRole())) {</span>
+<span class="fc" id="L45">                int driverId = driverDAO.getDriverIdByUserId(userId);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">                if (driverId &gt; 0) {</span>
+<span class="fc" id="L47">                    var d = driverDAO.findById(driverId);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">                    if (d != null) licenceNumber = d.getLicenceNumber();</span>
+                }
+            }
+
+<span class="fc" id="L52">            req.setAttribute(&quot;user&quot;, user);</span>
+<span class="fc" id="L53">            req.setAttribute(&quot;licenceNumber&quot;, licenceNumber); </span>
+<span class="fc" id="L54">            req.getRequestDispatcher(&quot;/views/admin/editUser.jsp&quot;).forward(req, resp);</span>
+
+<span class="nc" id="L56">        } catch (Exception e) {</span>
+<span class="nc" id="L57">            e.printStackTrace();</span>
+<span class="nc" id="L58">            resp.sendRedirect(req.getContextPath()+&quot;/views/error.jsp?msg=Failed to load user&quot;);</span>
+        } finally {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if (conn != null) try { conn.close(); } catch (Exception ignore) {}</span>
+        }
+<span class="fc" id="L62">    }</span>
+
+    @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+<span class="fc" id="L67">        String action = req.getParameter(&quot;action&quot;);</span>
+<span class="fc" id="L68">        Connection conn = null;</span>
+
+        try {
+<span class="fc" id="L71">            DAOFactory f = DAOFactory.getInstance();</span>
+<span class="fc" id="L72">            conn = f.getConnection();</span>
+<span class="fc" id="L73">            conn.setAutoCommit(false);</span>
+
+<span class="fc" id="L75">            UserDAOImpl userDAO = new UserDAOImpl(conn);</span>
+<span class="fc" id="L76">            DriverDAOImpl driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L77">            PassengerDAOImpl passengerDAO = new PassengerDAOImpl(conn);</span>
+
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if (&quot;update&quot;.equals(action)) {</span>
+<span class="fc" id="L80">                int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
+<span class="fc" id="L81">                String email = req.getParameter(&quot;email&quot;);</span>
+<span class="fc" id="L82">                String firstName = req.getParameter(&quot;firstName&quot;);</span>
+<span class="fc" id="L83">                String lastName = req.getParameter(&quot;lastName&quot;);</span>
+<span class="fc" id="L84">                String phone = req.getParameter(&quot;phoneNumber&quot;);</span>
+<span class="fc" id="L85">                String roleParam = req.getParameter(&quot;role&quot;);         </span>
+<span class="fc" id="L86">                String licence = req.getParameter(&quot;licenceNumber&quot;);  </span>
+
+<span class="fc" id="L88">                UserBean u = userDAO.findById(id);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">                if (u == null) throw new DAOException(new IllegalArgumentException(&quot;User not found&quot;));</span>
+
+<span class="fc" id="L91">                final String originalRole = u.getRole();</span>
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">                final String newRole = (roleParam == null || roleParam.isBlank()) ? originalRole : roleParam;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">                final boolean roleChanged = !originalRole.equals(newRole);</span>
+
+<span class="fc" id="L95">                u.setEmail(email);</span>
+<span class="fc" id="L96">                u.setFirstName(firstName);</span>
+<span class="fc" id="L97">                u.setLastName(lastName);</span>
+<span class="fc" id="L98">                u.setPhoneNumber(phone);</span>
+<span class="fc" id="L99">                u.setRole(newRole);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                if (!userDAO.update(u)) throw new DAOException(new RuntimeException(&quot;User update failed&quot;));</span>
+
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                if (roleChanged) {</span>
+<span class="pc bpc" id="L103" title="3 of 4 branches missed.">                    switch (newRole) {</span>
+                        case &quot;DRIVER&quot;: {
+<span class="pc bpc" id="L105" title="2 of 4 branches missed.">                            if (licence == null || licence.isBlank()) {</span>
+<span class="nc" id="L106">                                throw new DAOException(new IllegalArgumentException(&quot;Licence is required when switching to DRIVER&quot;));</span>
+                            }
+<span class="fc" id="L108">                            int pid = passengerDAO.findByUserId(id);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">                            if (pid &gt; 0) passengerDAO.deleteByUserId(id);</span>
+
+<span class="fc" id="L111">                            DriverBean d = new DriverBean();</span>
+<span class="fc" id="L112">                            d.setUserId(id);</span>
+<span class="fc" id="L113">                            d.setLicenceNumber(licence);</span>
+<span class="fc" id="L114">                            driverDAO.create(d);</span>
+                            
+<span class="fc" id="L116">                            break;</span>
+                        }
+                        case &quot;PASSENGER&quot;: {
+<span class="nc" id="L119">                            int did = driverDAO.getDriverIdByUserId(id);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                            if (did &gt; 0) driverDAO.deleteByUserId(id);</span>
+
+<span class="nc" id="L122">                            PassengerBean p = new PassengerBean();</span>
+<span class="nc" id="L123">                            p.setUserId(id);</span>
+<span class="nc" id="L124">                            passengerDAO.create(p);</span>
+<span class="nc" id="L125">                            break;</span>
+                        }
+                        case &quot;ADMIN&quot;: {
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                        	if (originalRole.equals(&quot;DRIVER&quot;)) {</span>
+<span class="nc" id="L129">	                            int did = driverDAO.getDriverIdByUserId(id);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">	                            if (did &gt; 0) driverDAO.deleteByUserId(id);</span>
+<span class="nc" id="L131">                        	} else {</span>
+<span class="nc" id="L132">	                            int pid = passengerDAO.findByUserId(id);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">	                            if (pid &gt; 0) passengerDAO.deleteByUserId(id);</span>
+                        	}
+<span class="nc" id="L135">                            break;</span>
+                        }
+                        default:
+<span class="nc" id="L138">                            throw new DAOException(new IllegalArgumentException(&quot;Unsupported role: &quot; + newRole));</span>
+<span class="fc" id="L139">                    }</span>
+                } else {
+<span class="nc bnc" id="L141" title="All 4 branches missed.">                    switch (newRole) {</span>
+                        case &quot;DRIVER&quot;: {
+<span class="nc" id="L143">                            int did = driverDAO.getDriverIdByUserId(id);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                            if (did &lt;= 0) {</span>
+<span class="nc bnc" id="L145" title="All 4 branches missed.">                                if (licence != null &amp;&amp; !licence.isBlank()) {</span>
+<span class="nc" id="L146">                                    DriverBean d = new DriverBean();</span>
+<span class="nc" id="L147">                                    d.setUserId(id);</span>
+<span class="nc" id="L148">                                    d.setLicenceNumber(licence);</span>
+<span class="nc" id="L149">                                    driverDAO.create(d);</span>
+<span class="nc" id="L150">                                }</span>
+                            } else {
+<span class="nc bnc" id="L152" title="All 4 branches missed.">                                if (licence != null &amp;&amp; !licence.isBlank()) {</span>
+<span class="nc" id="L153">                                    DriverBean d = new DriverBean();</span>
+<span class="nc" id="L154">                                    d.setId(did);</span>
+<span class="nc" id="L155">                                    d.setUserId(id);</span>
+<span class="nc" id="L156">                                    d.setLicenceNumber(licence);</span>
+<span class="nc" id="L157">                                    driverDAO.update(d);</span>
+<span class="nc" id="L158">                                }</span>
+                            }
+                            break;
+                        }
+                        case &quot;PASSENGER&quot;: {
+<span class="nc" id="L163">                            int pid = passengerDAO.findByUserId(id);</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">                            if (pid &lt;= 0) {</span>
+<span class="nc" id="L165">                                PassengerBean p = new PassengerBean();</span>
+<span class="nc" id="L166">                                p.setUserId(id);</span>
+<span class="nc" id="L167">                                passengerDAO.create(p);</span>
+<span class="nc" id="L168">                            }</span>
+                            break;
+                        }
+                        case &quot;ADMIN&quot;:
+<span class="nc" id="L172">                            break;</span>
+                        default:
+<span class="nc" id="L174">                            throw new DAOException(new IllegalArgumentException(&quot;Unsupported role: &quot; + newRole));</span>
+                    }
+                }
+
+<span class="fc" id="L178">                conn.commit();</span>
+<span class="fc" id="L179">                resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?&quot;+id+&quot;&amp;success=Saved&quot;);</span>
+<span class="fc" id="L180">                return;</span>
+            }
+
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            if (&quot;delete&quot;.equals(action)) {</span>
+<span class="nc" id="L185">                int id = Integer.parseInt(req.getParameter(&quot;id&quot;));</span>
+<span class="nc" id="L186">                boolean ok = userDAO.deleteById(id);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                if (!ok) throw new DAOException(new RuntimeException(&quot;Delete failed&quot;));</span>
+
+<span class="nc" id="L189">                conn.commit();</span>
+<span class="nc" id="L190">                resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?success=User%20deleted&quot;);</span>
+<span class="nc" id="L191">                return;</span>
+            }
+
+<span class="nc" id="L194">            conn.rollback();</span>
+<span class="nc" id="L195">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Unknown%20action&quot;);</span>
+
+<span class="nc" id="L197">        } catch (Exception e) {</span>
+<span class="nc" id="L198">            e.printStackTrace();</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            try { if (conn != null) conn.rollback(); } catch (Exception ignore) {}</span>
+<span class="nc" id="L200">            resp.sendRedirect(req.getContextPath()+&quot;/admin/dashboard?error=Operation%20failed&quot;);</span>
+        } finally {
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">            if (conn != null) try { conn.close(); } catch (Exception ignore) {}</span>
+        }
+<span class="nc" id="L204">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

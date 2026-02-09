@@ -1,24 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.Servlet.ConfirmBookingServletIT
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.021 s <<< FAILURE! -- in com.JAVA.Servlet.ConfirmBookingServletIT
-com.JAVA.Servlet.ConfirmBookingServletIT.confirmBooking_redirects -- Time elapsed: 0.018 s <<< FAILURE!
-Wanted but not invoked:
-httpServletResponse.sendRedirect(
-    <any string>
-);
--> at com.JAVA.Servlet.ConfirmBookingServletIT.confirmBooking_redirects(ConfirmBookingServletIT.java:19)
-
-However, there was exactly 1 interaction with this mock:
-httpServletResponse.sendError(
-    500,
-    "Error confirming booking: Le fichier properties /com/JAVA/DAO/Factory/dao.properties est introuvable."
-);
--> at com.JAVA.Servlet.ConfirmBookingServlet.doGet(ConfirmBookingServlet.java:68)
-
-
-	at com.JAVA.Servlet.ConfirmBookingServletIT.confirmBooking_redirects(ConfirmBookingServletIT.java:19)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s -- in com.JAVA.Servlet.ConfirmBookingServletIT

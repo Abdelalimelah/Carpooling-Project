@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DriverDashServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">DriverDashServlet.java</span></div><h1>DriverDashServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@WebServlet(&quot;/driver/dashboard&quot;)
+<span class="fc" id="L23">public class DriverDashServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+<span class="fc" id="L29">        HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L30">        UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="fc" id="L32">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L34">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L35">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L37">            DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L38">            int driverId = driverDAO.getDriverIdByUserId(user.getId());</span>
+            
+<span class="fc" id="L40">            TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L41">            List&lt;TripBean&gt; allTrips = tripDAO.findByDriverId(driverId);</span>
+            
+<span class="fc" id="L43">            List&lt;TripBean&gt; activeTrips = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L44">            List&lt;TripBean&gt; completedTrips = new ArrayList&lt;&gt;();</span>
+            
+<span class="fc" id="L46">            BookingDAO bookingDAO = new BookingDAOImpl(conn);</span>
+<span class="fc" id="L47">            LocalDateTime now = LocalDateTime.now();</span>
+            
+<span class="fc bfc" id="L49" title="All 2 branches covered.">            for (TripBean trip : allTrips) {</span>
+<span class="fc" id="L50">                boolean isCompleted = bookingDAO.tripIsCompleted(trip.getId());</span>
+                
+<span class="fc bfc" id="L52" title="All 2 branches covered.">                if (isCompleted) {</span>
+<span class="fc" id="L53">                    completedTrips.add(trip);</span>
+                } else {
+<span class="fc" id="L55">                    activeTrips.add(trip);</span>
+                }
+<span class="fc" id="L57">            }</span>
+            
+<span class="fc" id="L59">            CarDAO carDAO = new CarDAOImpl(conn);</span>
+<span class="fc" id="L60">            List&lt;CarBean&gt; cars = carDAO.findByDriverId(driverId);</span>
+            
+<span class="fc" id="L62">            int totalTrips = allTrips.size();</span>
+<span class="fc" id="L63">            BigDecimal totalEarnings = bookingDAO.calculateTotalEarningsByDriver(driverId);</span>
+
+<span class="fc" id="L65">            FeedbackDAOImpl feedbackDAO = new FeedbackDAOImpl(conn);</span>
+<span class="fc" id="L66">            double averageRating = feedbackDAO.getAverageRatingForTarget(user.getId(), &quot;DRIVER&quot;);</span>
+
+            
+<span class="fc" id="L69">            int unreadCount = 0;</span>
+<span class="fc" id="L70">            List&lt;NotificationBean&gt; notifications = new ArrayList&lt;&gt;();</span>
+            try {
+<span class="fc" id="L72">                NotificationDAO notifDAO = new NotificationDAOImpl(conn);</span>
+<span class="fc" id="L73">                unreadCount = notifDAO.countUnread(user.getId());</span>
+<span class="fc" id="L74">                notifications = notifDAO.getUnreadByUser(user.getId(), 10, 0);</span>
+<span class="nc" id="L75">            } catch (Exception e) {</span>
+<span class="nc" id="L76">                System.err.println(&quot;Notifications error (non-blocking): &quot; + e.getMessage());</span>
+<span class="fc" id="L77">            }</span>
+            
+<span class="fc" id="L79">            request.setAttribute(&quot;cars&quot;, cars);</span>
+<span class="fc" id="L80">            request.setAttribute(&quot;activeTrips&quot;, activeTrips);</span>
+<span class="fc" id="L81">            request.setAttribute(&quot;completedTrips&quot;, completedTrips);</span>
+<span class="fc" id="L82">            request.setAttribute(&quot;totalTrips&quot;, totalTrips);</span>
+<span class="fc" id="L83">            request.setAttribute(&quot;totalEarnings&quot;, totalEarnings);</span>
+<span class="fc" id="L84">            request.setAttribute(&quot;averageRating&quot;, averageRating);</span>
+<span class="fc" id="L85">            request.setAttribute(&quot;user&quot;, user);</span>
+<span class="fc" id="L86">            request.setAttribute(&quot;now&quot;, now);</span>
+<span class="fc" id="L87">            request.setAttribute(&quot;unreadNotificationCount&quot;, unreadCount);</span>
+<span class="fc" id="L88">            request.setAttribute(&quot;notifications&quot;, notifications);</span>
+            
+<span class="fc" id="L90">            request.getRequestDispatcher(&quot;/views/driver/dashboard.jsp&quot;).forward(request, response);</span>
+            
+<span class="nc" id="L92">        } catch (Exception e) {</span>
+<span class="nc" id="L93">            e.printStackTrace();</span>
+<span class="nc" id="L94">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error loading dashboard: &quot; + e.getMessage());</span>
+<span class="nc" id="L95">            request.getRequestDispatcher(&quot;/views/error.jsp&quot;).forward(request, response);</span>
+        } finally {
+            try {
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                if (conn != null) conn.close();</span>
+<span class="nc" id="L99">            } catch (Exception e) {</span>
+<span class="nc" id="L100">                e.printStackTrace();</span>
+<span class="fc" id="L101">            }</span>
+        }
+<span class="fc" id="L103">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateBookingServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">CreateBookingServlet.java</span></div><h1>CreateBookingServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Connection;
+
+@WebServlet(&quot;/passenger/bookings/create&quot;)
+<span class="fc" id="L17">public class CreateBookingServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L22">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L24">            int tripId = Integer.parseInt(request.getParameter(&quot;tripId&quot;));</span>
+            
+<span class="fc" id="L26">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L27">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+            
+<span class="fc" id="L29">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L30">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L32">            PassengerDAO passengerDAO = new PassengerDAOImpl(conn);</span>
+<span class="fc" id="L33">            int passengerId = passengerDAO.findByUserId(user.getId());</span>
+            
+<span class="fc" id="L35">            TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L36">            TripBean trip = tripDAO.findById(tripId);</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">            if (trip == null) {</span>
+<span class="nc" id="L38">                response.sendError(HttpServletResponse.SC_NOT_FOUND, &quot;Trip not found&quot;);</span>
+<span class="nc" id="L39">                return;</span>
+            }
+            
+<span class="fc" id="L42">            BookingDAO bookingDAO = new BookingDAOImpl(conn);</span>
+<span class="fc" id="L43">            int confirmedBookings = bookingDAO.countConfirmedBookingsByTripId(tripId);</span>
+<span class="fc" id="L44">            int seatsLeft = trip.getSeatsAvailable() - confirmedBookings;</span>
+            
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">            if (seatsLeft &lt;= 0) {</span>
+<span class="nc" id="L47">                request.setAttribute(&quot;errorMessage&quot;, &quot;No seats available for this trip.&quot;);</span>
+<span class="nc" id="L48">                request.getRequestDispatcher(&quot;/passenger/trips&quot;).forward(request, response);</span>
+<span class="nc" id="L49">                return;</span>
+            }
+            
+<span class="fc" id="L52">            BookingBean booking = new BookingBean();</span>
+<span class="fc" id="L53">            booking.setTripId(tripId);</span>
+<span class="fc" id="L54">            booking.setPassengerId(passengerId);</span>
+<span class="fc" id="L55">            booking.setStatus(&quot;PENDING&quot;); </span>
+            
+            
+<span class="fc" id="L58">            DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L59">            int driverUserId = driverDAO.findUserIdByDriverId(trip.getDriverId());</span>
+
+<span class="fc" id="L61">            NotificationBean notification = new NotificationBean();</span>
+<span class="fc" id="L62">            notification.setUserId(driverUserId);</span>
+<span class="fc" id="L63">            notification.setType(&quot;NEW_BOOKING&quot;);</span>
+<span class="fc" id="L64">            notification.setMessage(&quot;New booking request from &quot; + user.getFirstName() + &quot; for &quot; +</span>
+<span class="fc" id="L65">                         trip.getDepartureCity() + &quot; → &quot; + trip.getArrivalCity() + &quot; on &quot; +</span>
+<span class="fc" id="L66">                         trip.getDateTime().toLocalDate() + &quot;.&quot;);</span>
+<span class="fc" id="L67">            String link = request.getContextPath() + &quot;/driver/trips/details?id=&quot; + trip.getId() +</span>
+<span class="fc" id="L68">                          &quot;&amp;highlightBooking=&quot; + booking.getId();</span>
+<span class="fc" id="L69">            notification.setMetadata(&quot;{\&quot;cta\&quot;:\&quot;Review booking\&quot;,\&quot;url\&quot;:\&quot;&quot; + link + &quot;\&quot;}&quot;);</span>
+            
+<span class="fc" id="L71">            NotificationDAO notifDAO = new NotificationDAOImpl(conn);</span>
+<span class="fc" id="L72">            notifDAO.create(notification);</span>
+
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            if (bookingDAO.create(booking)) {</span>
+<span class="fc" id="L75">                response.sendRedirect(request.getContextPath() + &quot;/passenger/dashboard?bookingCreated=1&quot;);</span>
+            } else {
+<span class="nc" id="L77">                throw new Exception(&quot;Failed to create booking&quot;);</span>
+            }
+            
+<span class="nc" id="L80">        } catch (Exception e) {</span>
+<span class="nc" id="L81">            e.printStackTrace();</span>
+<span class="nc" id="L82">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L83">            request.getRequestDispatcher(&quot;/passenger/trips&quot;).forward(request, response);</span>
+        } finally {
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L87">                    conn.close();</span>
+<span class="nc" id="L88">                } catch (Exception e) {</span>
+<span class="nc" id="L89">                    e.printStackTrace();</span>
+<span class="fc" id="L90">                }</span>
+            }
+        }
+<span class="fc" id="L93">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateTripServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">CreateTripServlet.java</span></div><h1>CreateTripServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+@WebServlet(&quot;/driver/trips/create&quot;)
+<span class="fc" id="L21">public class CreateTripServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L26">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L28">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L29">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="fc" id="L31">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L32">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L34">            DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L35">            int driverId = driverDAO.getDriverIdByUserId(user.getId());</span>
+            
+<span class="fc" id="L37">            CarDAO carDAO = new CarDAOImpl(conn);</span>
+<span class="fc" id="L38">            List&lt;CarBean&gt; cars = carDAO.findByDriverId(driverId);</span>
+            
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">            if (cars.isEmpty()) {</span>
+<span class="nc" id="L41">                request.setAttribute(&quot;errorMessage&quot;, &quot;You must add at least one car before publishing a trip.&quot;);</span>
+<span class="nc" id="L42">                request.getRequestDispatcher(&quot;/driver/cars/add&quot;).forward(request, response);</span>
+<span class="nc" id="L43">                return;</span>
+            }
+            
+<span class="fc" id="L46">            request.setAttribute(&quot;cars&quot;, cars);</span>
+<span class="fc" id="L47">            request.getRequestDispatcher(&quot;/views/driver/createTrip.jsp&quot;).forward(request, response);</span>
+            
+<span class="nc" id="L49">        } catch (Exception e) {</span>
+<span class="nc" id="L50">            e.printStackTrace();</span>
+<span class="nc" id="L51">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error loading trip form.&quot;);</span>
+<span class="nc" id="L52">            request.getRequestDispatcher(&quot;/driver/dashboard&quot;).forward(request, response);</span>
+        } finally {
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L56">                    conn.close();</span>
+<span class="nc" id="L57">                } catch (Exception e) {</span>
+<span class="nc" id="L58">                    e.printStackTrace();</span>
+<span class="fc" id="L59">                }</span>
+            }
+        }
+<span class="fc" id="L62">    }</span>
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L66">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L68">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L69">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="fc" id="L71">            String departureCity = request.getParameter(&quot;departureCity&quot;);</span>
+<span class="fc" id="L72">            String arrivalCity = request.getParameter(&quot;arrivalCity&quot;);</span>
+<span class="fc" id="L73">            String dateTimeStr = request.getParameter(&quot;dateTime&quot;);</span>
+<span class="fc" id="L74">            String priceStr = request.getParameter(&quot;price&quot;);</span>
+<span class="fc" id="L75">            String seatsStr = request.getParameter(&quot;seatsAvailable&quot;);</span>
+<span class="fc" id="L76">            String carIdStr = request.getParameter(&quot;carId&quot;);</span>
+
+<span class="pc bpc" id="L78" title="6 of 12 branches missed.">            if (departureCity == null || arrivalCity == null || </span>
+                dateTimeStr == null || priceStr == null || 
+                seatsStr == null || carIdStr == null ||
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">                departureCity.trim().isEmpty() || arrivalCity.trim().isEmpty()) {</span>
+<span class="nc" id="L82">                throw new Exception(&quot;All fields are required.&quot;);</span>
+            }
+
+<span class="fc" id="L85">            LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr);</span>
+<span class="fc" id="L86">            BigDecimal price = new BigDecimal(priceStr);</span>
+<span class="fc" id="L87">            int seatsAvailable = Integer.parseInt(seatsStr);</span>
+<span class="fc" id="L88">            int carId = Integer.parseInt(carIdStr);</span>
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (seatsAvailable &lt;= 0) {</span>
+<span class="nc" id="L91">                throw new Exception(&quot;Seats available must be at least 1.&quot;);</span>
+            }
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            if (price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="nc" id="L94">                throw new Exception(&quot;Price must be greater than 0.&quot;);</span>
+            }
+
+<span class="fc" id="L97">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L98">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L100">            DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L101">            int driverId = driverDAO.getDriverIdByUserId(user.getId());</span>
+
+<span class="fc" id="L103">            TripBean trip = new TripBean();</span>
+<span class="fc" id="L104">            trip.setDepartureCity(departureCity.trim());</span>
+<span class="fc" id="L105">            trip.setArrivalCity(arrivalCity.trim());</span>
+<span class="fc" id="L106">            trip.setDateTime(dateTime);</span>
+<span class="fc" id="L107">            trip.setPrice(price);</span>
+<span class="fc" id="L108">            trip.setSeatsAvailable(seatsAvailable);</span>
+<span class="fc" id="L109">            trip.setDriverId(driverId);</span>
+<span class="fc" id="L110">            trip.setCarId(carId);</span>
+
+<span class="fc" id="L112">            TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">            if (tripDAO.create(trip)) {</span>
+<span class="fc" id="L114">                response.sendRedirect(request.getContextPath() + &quot;/driver/dashboard?tripCreated=1&quot;);</span>
+            } else {
+<span class="nc" id="L116">                throw new Exception(&quot;Failed to create trip.&quot;);</span>
+            }
+
+<span class="fc" id="L119">        } catch (DateTimeParseException e) {</span>
+<span class="fc" id="L120">            request.setAttribute(&quot;errorMessage&quot;, &quot;Invalid date/time format. Use: YYYY-MM-DDTHH:mm&quot;);</span>
+<span class="fc" id="L121">            forwardWithCars(request, response);</span>
+<span class="nc" id="L122">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L123">            request.setAttribute(&quot;errorMessage&quot;, &quot;Invalid number format for price or seats.&quot;);</span>
+<span class="nc" id="L124">            forwardWithCars(request, response);</span>
+<span class="nc" id="L125">        } catch (Exception e) {</span>
+<span class="nc" id="L126">            e.printStackTrace();</span>
+<span class="nc" id="L127">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L128">            forwardWithCars(request, response);</span>
+        } finally {
+            // Fermer la connexion
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L133">                    conn.close();</span>
+<span class="nc" id="L134">                } catch (Exception e) {</span>
+<span class="nc" id="L135">                    e.printStackTrace();</span>
+<span class="fc" id="L136">                }</span>
+            }
+        }
+<span class="fc" id="L139">    }</span>
+
+    private void forwardWithCars(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L143">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L145">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L146">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+            
+<span class="fc" id="L148">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L149">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L151">            DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L152">            int driverId = driverDAO.getDriverIdByUserId(user.getId());</span>
+            
+<span class="fc" id="L154">            CarDAO carDAO = new CarDAOImpl(conn);</span>
+<span class="fc" id="L155">            List&lt;CarBean&gt; cars = carDAO.findByDriverId(driverId);</span>
+            
+<span class="fc" id="L157">            request.setAttribute(&quot;cars&quot;, cars);</span>
+<span class="fc" id="L158">            request.getRequestDispatcher(&quot;/views/driver/create-trip.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L159">        } catch (Exception e) {</span>
+<span class="nc" id="L160">            e.printStackTrace();</span>
+<span class="nc" id="L161">            request.getRequestDispatcher(&quot;/driver/dashboard&quot;).forward(request, response);</span>
+        } finally {
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L165">                    conn.close();</span>
+<span class="nc" id="L166">                } catch (Exception e) {</span>
+<span class="nc" id="L167">                    e.printStackTrace();</span>
+<span class="fc" id="L168">                }</span>
+            }
+        }
+<span class="fc" id="L171">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

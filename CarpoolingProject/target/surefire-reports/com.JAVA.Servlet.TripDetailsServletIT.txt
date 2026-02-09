@@ -1,18 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.Servlet.TripDetailsServletIT
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.014 s <<< FAILURE! -- in com.JAVA.Servlet.TripDetailsServletIT
-com.JAVA.Servlet.TripDetailsServletIT.tripDetails_forwards -- Time elapsed: 0.014 s <<< FAILURE!
-Wanted but not invoked:
-requestDispatcher.forward(
-    Mock for HttpServletRequest, hashCode: 1261949348,
-    Mock for HttpServletResponse, hashCode: 873546358
-);
--> at com.JAVA.Servlet.TripDetailsServletIT.tripDetails_forwards(TripDetailsServletIT.java:18)
-Actually, there were zero interactions with this mock.
-
-	at com.JAVA.Servlet.TripDetailsServletIT.tripDetails_forwards(TripDetailsServletIT.java:18)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s -- in com.JAVA.Servlet.TripDetailsServletIT

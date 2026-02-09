@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrowseTripsServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">BrowseTripsServlet.java</span></div><h1>BrowseTripsServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.*;
+
+@WebServlet(&quot;/passenger/trips&quot;)
+<span class="fc" id="L18">public class BrowseTripsServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L23">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L25">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L26">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+            
+<span class="fc" id="L28">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L29">            conn = daoFactory.getConnection();</span>
+            
+            // Get passenger ID
+<span class="fc" id="L32">            PassengerDAO passengerDAO = new PassengerDAOImpl(conn);</span>
+<span class="fc" id="L33">            int passengerId = passengerDAO.findByUserId(user.getId());</span>
+            
+            // Get filter parameters
+<span class="fc" id="L36">            String departureCity = request.getParameter(&quot;departureCity&quot;);</span>
+<span class="fc" id="L37">            String arrivalCity = request.getParameter(&quot;arrivalCity&quot;);</span>
+<span class="fc" id="L38">            String dateStr = request.getParameter(&quot;date&quot;);</span>
+            
+            // Load available trips (not booked by this passenger, future trips)
+<span class="fc" id="L41">            TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L42">            List&lt;TripBean&gt; trips = tripDAO.findAvailableTripsForPassenger(</span>
+                passengerId, 
+                departureCity, 
+                arrivalCity, 
+                dateStr
+            );
+            
+            // Load related data into maps
+<span class="fc" id="L50">            Map&lt;Integer, CarBean&gt; carMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L51">            Map&lt;Integer, UserBean&gt; driverUserMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L52">            Map&lt;Integer, Integer&gt; seatsLeftMap = new HashMap&lt;&gt;(); // tripId → seatsLeft</span>
+            
+<span class="fc" id="L54">            CarDAO carDAO = new CarDAOImpl(conn);</span>
+<span class="fc" id="L55">            UserDAO userDAO = new UserDAOImpl(conn);</span>
+<span class="fc" id="L56">            DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="fc" id="L57">            BookingDAO bookingDAO = new BookingDAOImpl(conn);</span>
+            
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">            for (TripBean trip : trips) {</span>
+                // Load car
+<span class="nc" id="L61">                CarBean car = carDAO.findById(trip.getCarId());</span>
+<span class="nc" id="L62">                carMap.put(trip.getId(), car);</span>
+                
+                // Load driver user
+<span class="nc" id="L65">                int driverUserId = driverDAO.findUserIdByDriverId(trip.getDriverId());</span>
+<span class="nc" id="L66">                UserBean driverUser = userDAO.findById(driverUserId);</span>
+<span class="nc" id="L67">                driverUserMap.put(trip.getId(), driverUser);</span>
+                
+                // Calculate seats left
+<span class="nc" id="L70">                int confirmedBookings = bookingDAO.countConfirmedBookingsByTripId(trip.getId());</span>
+<span class="nc" id="L71">                int seatsLeft = trip.getSeatsAvailable() - confirmedBookings;</span>
+<span class="nc" id="L72">                seatsLeftMap.put(trip.getId(), seatsLeft);</span>
+<span class="nc" id="L73">            }</span>
+            
+            // Pass to JSP
+<span class="fc" id="L76">            request.setAttribute(&quot;trips&quot;, trips);</span>
+<span class="fc" id="L77">            request.setAttribute(&quot;carMap&quot;, carMap);</span>
+<span class="fc" id="L78">            request.setAttribute(&quot;driverUserMap&quot;, driverUserMap);</span>
+<span class="fc" id="L79">            request.setAttribute(&quot;seatsLeftMap&quot;, seatsLeftMap);</span>
+<span class="fc" id="L80">            request.setAttribute(&quot;departureCity&quot;, departureCity);</span>
+<span class="fc" id="L81">            request.setAttribute(&quot;arrivalCity&quot;, arrivalCity);</span>
+<span class="fc" id="L82">            request.setAttribute(&quot;date&quot;, dateStr);</span>
+            
+<span class="fc" id="L84">            request.getRequestDispatcher(&quot;/views/passenger/browseTrips.jsp&quot;).forward(request, response);</span>
+            
+<span class="nc" id="L86">        } catch (Exception e) {</span>
+<span class="nc" id="L87">            e.printStackTrace();</span>
+<span class="nc" id="L88">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error loading trips: &quot; + e.getMessage());</span>
+<span class="nc" id="L89">            request.getRequestDispatcher(&quot;/views/error.jsp&quot;).forward(request, response);</span>
+        } finally {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L93">                    conn.close();</span>
+<span class="nc" id="L94">                } catch (Exception e) {</span>
+<span class="nc" id="L95">                    e.printStackTrace();</span>
+<span class="fc" id="L96">                }</span>
+            }
+        }
+<span class="fc" id="L99">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

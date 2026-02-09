@@ -1,12 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.DAO.Factory.DAOFactoryTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.015 s <<< FAILURE! -- in com.JAVA.DAO.Factory.DAOFactoryTest
-com.JAVA.DAO.Factory.DAOFactoryTest.getInstanceProvidesConnection -- Time elapsed: 0.009 s <<< ERROR!
-com.JAVA.DAO.Exception.DAOConfigurationException: Le fichier properties /com/JAVA/DAO/Factory/dao.properties est introuvable.
-	at com.JAVA.DAO.Factory.DAOFactory.getInstance(DAOFactory.java:41)
-	at com.JAVA.DAO.Factory.DAOFactoryTest.getInstanceProvidesConnection(DAOFactoryTest.java:13)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.563 s -- in com.JAVA.DAO.Factory.DAOFactoryTest

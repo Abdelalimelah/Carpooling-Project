@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FeedbackDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.DAO.Implement</a> &gt; <span class="el_source">FeedbackDAOImpl.java</span></div><h1>FeedbackDAOImpl.java</h1><pre class="source lang-java linenums">package com.JAVA.DAO.Implement;
+
+import java.sql.Connection;  
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.JAVA.Beans.FeedbackBean;
+import com.JAVA.DAO.FeedbackDAO;
+import com.JAVA.DAO.Exception.DAOException;
+
+public class FeedbackDAOImpl implements FeedbackDAO {
+    private Connection connection;
+
+<span class="fc" id="L17">    public FeedbackDAOImpl(Connection connection) {</span>
+<span class="fc" id="L18">        this.connection = connection;</span>
+<span class="fc" id="L19">    }</span>
+    
+    public boolean create(FeedbackBean feedback) throws DAOException {
+<span class="fc" id="L22">        String sql = &quot;INSERT INTO FeedBack (rating, comment, author_id, target_id, feedback_type, trip_id) VALUES (?, ?, ?, ?, ?, ?)&quot;;</span>
+<span class="fc" id="L23">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L24">            stmt.setInt(1, feedback.getRating());</span>
+<span class="fc" id="L25">            stmt.setString(2, feedback.getComment());</span>
+<span class="fc" id="L26">            stmt.setInt(3, feedback.getAuthorId());</span>
+<span class="fc" id="L27">            stmt.setInt(4, feedback.getTargetId());</span>
+<span class="fc" id="L28">            stmt.setString(5, feedback.getFeedbackType());</span>
+<span class="fc" id="L29">            stmt.setInt(6, feedback.getTripId());</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L31">        } catch (SQLException e) {</span>
+<span class="nc" id="L32">            throw new DAOException(&quot;Error creating feedback&quot;, e);</span>
+        }
+    }
+
+    public boolean existsByAuthorAndTargetAndTrip(int authorId, int targetId, int tripId) throws DAOException {
+<span class="fc" id="L37">        String sql = &quot;SELECT 1 FROM FeedBack WHERE author_id = ? AND target_id = ? AND trip_id = ?&quot;;</span>
+<span class="fc" id="L38">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L39">            stmt.setInt(1, authorId);</span>
+<span class="fc" id="L40">            stmt.setInt(2, targetId);</span>
+<span class="fc" id="L41">            stmt.setInt(3, tripId);</span>
+<span class="fc" id="L42">            return stmt.executeQuery().next();</span>
+<span class="nc" id="L43">        } catch (SQLException e) {</span>
+<span class="nc" id="L44">            throw new DAOException(&quot;Error checking if feedback exists for author: &quot; + authorId + &quot;, target: &quot; + targetId + &quot;, trip: &quot; + tripId, e);</span>
+        }
+    }
+
+    public double getAverageRatingForTarget(int targetId, String feedbackType) throws DAOException {
+<span class="fc" id="L49">        String sql = &quot;SELECT COALESCE(AVG(rating), 0) &quot; +</span>
+                     &quot;FROM FeedBack &quot; +
+                     &quot;WHERE target_id = ? AND feedback_type = ?&quot;;
+<span class="fc" id="L52">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L53">            stmt.setInt(1, targetId); </span>
+<span class="fc" id="L54">            stmt.setString(2, feedbackType);</span>
+<span class="fc" id="L55">            try (ResultSet rs = stmt.executeQuery()) {</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                if (rs.next()) return rs.getDouble(1);</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">            }</span>
+<span class="nc" id="L58">            return 0.0;</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L60">            throw new DAOException(&quot;Error getting average rating for target: &quot; + targetId +</span>
+                                   &quot;, type: &quot; + feedbackType, e);
+        }
+    }
+    
+    public List&lt;FeedbackBean&gt; findByTargetAndType(int targetId, String feedbackType) throws DAOException {
+<span class="fc" id="L66">        List&lt;FeedbackBean&gt; feedbacks = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L67">        String sql = &quot;SELECT * FROM FeedBack WHERE target_id = ? AND feedback_type = ? ORDER BY date_time DESC&quot;;</span>
+<span class="fc" id="L68">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L69">            stmt.setInt(1, targetId);</span>
+<span class="fc" id="L70">            stmt.setString(2, feedbackType);</span>
+<span class="fc" id="L71">            ResultSet rs = stmt.executeQuery();</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L73">                FeedbackBean fb = new FeedbackBean();</span>
+<span class="fc" id="L74">                fb.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L75">                fb.setRating(rs.getInt(&quot;rating&quot;));</span>
+<span class="fc" id="L76">                fb.setComment(rs.getString(&quot;comment&quot;));</span>
+<span class="fc" id="L77">                fb.setDateTime(rs.getTimestamp(&quot;date_time&quot;).toLocalDateTime());</span>
+<span class="fc" id="L78">                fb.setAuthorId(rs.getInt(&quot;author_id&quot;));</span>
+<span class="fc" id="L79">                fb.setTargetId(rs.getInt(&quot;target_id&quot;));</span>
+<span class="fc" id="L80">                fb.setFeedbackType(rs.getString(&quot;feedback_type&quot;));</span>
+<span class="fc" id="L81">                fb.setTripId(rs.getInt(&quot;trip_id&quot;));</span>
+<span class="fc" id="L82">                feedbacks.add(fb);</span>
+<span class="fc" id="L83">            }</span>
+<span class="nc" id="L84">        } catch (SQLException e) {</span>
+<span class="nc" id="L85">            throw new DAOException(&quot;Error finding feedback for target: &quot; + targetId + &quot;, type: &quot; + feedbackType, e);</span>
+<span class="fc" id="L86">        }</span>
+<span class="fc" id="L87">        return feedbacks;</span>
+    }
+    
+    @Override
+    public int countAll() throws DAOException {
+<span class="fc" id="L92">        String sql = &quot;SELECT COUNT(*) FROM FeedBack&quot;;</span>
+<span class="fc" id="L93">        try (PreparedStatement ps = connection.prepareStatement(sql);</span>
+<span class="fc" id="L94">             ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            return rs.next() ? rs.getInt(1) : 0;</span>
+<span class="nc" id="L96">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+
+    @Override
+    public int countFiltered(String type, Integer authorId, Integer targetId, Integer minRating) throws DAOException {
+<span class="fc" id="L101">        StringBuilder sql = new StringBuilder(&quot;SELECT COUNT(*) FROM FeedBack WHERE 1=1&quot;);</span>
+<span class="fc" id="L102">        java.util.List&lt;Object&gt; params = new java.util.ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (type != null) { sql.append(&quot; AND feedback_type = ?&quot;); params.add(type); }</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (authorId != null) { sql.append(&quot; AND author_id = ?&quot;); params.add(authorId); }</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (targetId != null) { sql.append(&quot; AND target_id = ?&quot;); params.add(targetId); }</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (minRating != null) { sql.append(&quot; AND rating &gt;= ?&quot;); params.add(minRating); }</span>
+
+<span class="fc" id="L109">        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {</span>
+<span class="fc" id="L110">            int i = 1;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            for (Object p : params) ps.setObject(i++, p);</span>
+<span class="fc" id="L112">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">                return rs.next() ? rs.getInt(1) : 0;</span>
+            }
+<span class="nc" id="L115">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+
+    @Override
+    public java.util.List&lt;com.JAVA.Beans.FeedbackBean&gt; findPagedFiltered(
+            String type, Integer authorId, Integer targetId, Integer minRating,
+            int offset, int limit) throws DAOException {
+
+<span class="fc" id="L123">        StringBuilder sql = new StringBuilder(</span>
+            &quot;SELECT id, rating, comment, date_time, author_id, target_id, feedback_type, trip_id &quot; +
+            &quot;FROM FeedBack WHERE 1=1&quot;
+        );
+<span class="fc" id="L127">        java.util.List&lt;Object&gt; params = new java.util.ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (type != null) { sql.append(&quot; AND feedback_type = ?&quot;); params.add(type); }</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (authorId != null) { sql.append(&quot; AND author_id = ?&quot;); params.add(authorId); }</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (targetId != null) { sql.append(&quot; AND target_id = ?&quot;); params.add(targetId); }</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (minRating != null) { sql.append(&quot; AND rating &gt;= ?&quot;); params.add(minRating); }</span>
+
+<span class="fc" id="L134">        sql.append(&quot; ORDER BY date_time DESC LIMIT ? OFFSET ?&quot;);</span>
+<span class="fc" id="L135">        params.add(limit);</span>
+<span class="fc" id="L136">        params.add(offset);</span>
+
+<span class="fc" id="L138">        java.util.List&lt;com.JAVA.Beans.FeedbackBean&gt; list = new java.util.ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L140">        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {</span>
+<span class="fc" id="L141">            int i = 1;</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">            for (Object p : params) ps.setObject(i++, p);</span>
+
+<span class="fc" id="L144">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                while (rs.next()) {</span>
+<span class="fc" id="L146">                    com.JAVA.Beans.FeedbackBean fb = new com.JAVA.Beans.FeedbackBean();</span>
+<span class="fc" id="L147">                    fb.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L148">                    fb.setRating(rs.getInt(&quot;rating&quot;));</span>
+<span class="fc" id="L149">                    fb.setComment(rs.getString(&quot;comment&quot;));</span>
+<span class="fc" id="L150">                    fb.setDateTime(rs.getTimestamp(&quot;date_time&quot;).toLocalDateTime());</span>
+<span class="fc" id="L151">                    fb.setAuthorId(rs.getInt(&quot;author_id&quot;));</span>
+<span class="fc" id="L152">                    fb.setTargetId(rs.getInt(&quot;target_id&quot;));</span>
+<span class="fc" id="L153">                    fb.setFeedbackType(rs.getString(&quot;feedback_type&quot;));</span>
+<span class="fc" id="L154">                    fb.setTripId(rs.getInt(&quot;trip_id&quot;));</span>
+<span class="fc" id="L155">                    list.add(fb);</span>
+<span class="fc" id="L156">                }</span>
+            }
+<span class="fc" id="L158">            return list;</span>
+<span class="nc" id="L159">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+    
+    @Override
+    public boolean delete(int id) throws DAOException {
+<span class="fc" id="L164">        String sql = &quot;DELETE FROM Feedback WHERE id = ?&quot;;</span>
+<span class="fc" id="L165">        try (PreparedStatement ps = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L166">            ps.setInt(1, id);</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            return ps.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L168">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookingDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.DAO.Implement</a> &gt; <span class="el_source">BookingDAOImpl.java</span></div><h1>BookingDAOImpl.java</h1><pre class="source lang-java linenums">package com.JAVA.DAO.Implement;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.JAVA.Beans.BookingBean;
+import com.JAVA.DAO.BookingDAO;
+import com.JAVA.DAO.Exception.DAOException;
+
+public class BookingDAOImpl implements BookingDAO {
+    private Connection connection;
+
+<span class="fc" id="L20">    public BookingDAOImpl(Connection connection) {</span>
+<span class="fc" id="L21">        this.connection = connection;</span>
+<span class="fc" id="L22">    }</span>
+    
+    public List&lt;BookingBean&gt; findByTripId(int tripId) throws DAOException {
+<span class="fc" id="L25">        List&lt;BookingBean&gt; bookings = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L26">        String sql = &quot;SELECT * FROM Booking WHERE trip_id = ?&quot;;</span>
+<span class="fc" id="L27">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L28">            stmt.setInt(1, tripId);</span>
+<span class="fc" id="L29">            ResultSet rs = stmt.executeQuery();</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L31">                BookingBean booking = new BookingBean();</span>
+<span class="fc" id="L32">                booking.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L33">                booking.setTripId(rs.getInt(&quot;trip_id&quot;));</span>
+<span class="fc" id="L34">                booking.setPassengerId(rs.getInt(&quot;passenger_id&quot;));</span>
+<span class="fc" id="L35">                booking.setStatus(rs.getString(&quot;status&quot;));</span>
+<span class="fc" id="L36">                booking.setBookingDate(rs.getTimestamp(&quot;booking_date&quot;).toLocalDateTime());</span>
+<span class="fc" id="L37">                bookings.add(booking);</span>
+<span class="fc" id="L38">            }</span>
+<span class="nc" id="L39">        } catch (SQLException e) {</span>
+<span class="nc" id="L40">            throw new DAOException(&quot;Error finding bookings by trip ID: &quot; + tripId, e);</span>
+<span class="fc" id="L41">        }</span>
+<span class="fc" id="L42">        return bookings;</span>
+    }
+
+    public boolean updateStatus(int bookingId, String status) throws DAOException {
+<span class="fc" id="L46">        String sql = &quot;UPDATE Booking SET status = ? WHERE id = ?&quot;;</span>
+<span class="fc" id="L47">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L48">            stmt.setString(1, status);</span>
+<span class="fc" id="L49">            stmt.setInt(2, bookingId);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L51">        } catch (SQLException e) {</span>
+<span class="nc" id="L52">            throw new DAOException(&quot;Error updating booking status for ID: &quot; + bookingId, e);</span>
+        }
+    }
+    
+    public int countConfirmedBookingsByTripId(int tripId) throws DAOException {
+<span class="fc" id="L57">        String sql = &quot;SELECT COUNT(*) FROM Booking WHERE trip_id = ? AND status IN ('CONFIRMED', 'COMPLETED')&quot;;</span>
+<span class="fc" id="L58">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L59">            stmt.setInt(1, tripId);</span>
+<span class="fc" id="L60">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L62">                return rs.getInt(1);</span>
+            }
+<span class="nc" id="L64">            return 0;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L66">            throw new DAOException(&quot;Error counting confirmed bookings for trip ID: &quot; + tripId, e);</span>
+        }
+    }
+    
+    public List&lt;BookingBean&gt; findByPassengerId(int passengerId) throws DAOException {
+<span class="fc" id="L71">        List&lt;BookingBean&gt; bookings = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L72">        String sql = &quot;SELECT * FROM Booking WHERE passenger_id = ? ORDER BY booking_date DESC&quot;;</span>
+<span class="fc" id="L73">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L74">            stmt.setInt(1, passengerId);</span>
+<span class="fc" id="L75">            ResultSet rs = stmt.executeQuery();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L77">                BookingBean booking = new BookingBean();</span>
+<span class="fc" id="L78">                booking.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L79">                booking.setTripId(rs.getInt(&quot;trip_id&quot;));</span>
+<span class="fc" id="L80">                booking.setPassengerId(rs.getInt(&quot;passenger_id&quot;));</span>
+<span class="fc" id="L81">                booking.setStatus(rs.getString(&quot;status&quot;));</span>
+<span class="fc" id="L82">                booking.setBookingDate(rs.getTimestamp(&quot;booking_date&quot;).toLocalDateTime());</span>
+<span class="fc" id="L83">                bookings.add(booking);</span>
+<span class="fc" id="L84">            }</span>
+<span class="nc" id="L85">        } catch (SQLException e) {</span>
+<span class="nc" id="L86">            throw new DAOException(&quot;Error finding bookings by passenger ID: &quot; + passengerId, e);</span>
+<span class="fc" id="L87">        }</span>
+<span class="fc" id="L88">        return bookings;</span>
+    }
+    
+    public boolean create(BookingBean booking) throws DAOException {
+<span class="fc" id="L92">        String sql = &quot;INSERT INTO Booking (trip_id, passenger_id, status) VALUES (?, ?, ?)&quot;;</span>
+<span class="fc" id="L93">        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="fc" id="L94">            stmt.setInt(1, booking.getTripId());</span>
+<span class="fc" id="L95">            stmt.setInt(2, booking.getPassengerId());</span>
+<span class="fc" id="L96">            stmt.setString(3, booking.getStatus());</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L98">        } catch (SQLException e) {</span>
+<span class="nc" id="L99">            throw new DAOException(&quot;Error creating booking&quot;, e);</span>
+        }
+    }
+    
+    public BigDecimal calculateTotalEarningsByDriver(int driverId) throws DAOException {
+<span class="fc" id="L104">        String sql = &quot;SELECT COALESCE(SUM(t.price), 0) &quot; +</span>
+                     &quot;FROM Trip t &quot; +
+                     &quot;JOIN Booking b ON t.id = b.trip_id &quot; +
+                     &quot;WHERE t.driver_id = ? AND b.status = 'COMPLETED'&quot;;
+<span class="fc" id="L108">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L109">            stmt.setInt(1, driverId);</span>
+<span class="fc" id="L110">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L112">                return rs.getBigDecimal(1);</span>
+            }
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L115">            throw new DAOException(&quot;Error calculating total earnings for driver ID: &quot; + driverId, e);</span>
+<span class="nc" id="L116">        }</span>
+<span class="nc" id="L117">        return BigDecimal.ZERO;</span>
+    }
+    
+    public void markTripAsCompleted(int tripId) throws DAOException {
+<span class="fc" id="L121">        String sql = &quot;UPDATE Booking SET status = 'COMPLETED' WHERE trip_id = ? AND status = 'CONFIRMED'&quot;;</span>
+<span class="fc" id="L122">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L123">            stmt.setInt(1, tripId);</span>
+<span class="fc" id="L124">            stmt.executeUpdate();</span>
+<span class="nc" id="L125">        } catch (SQLException e) {</span>
+<span class="nc" id="L126">            throw new DAOException(&quot;Error marking trip as completed for trip ID: &quot; + tripId, e);</span>
+<span class="fc" id="L127">        }</span>
+<span class="fc" id="L128">    }</span>
+    
+    public boolean tripIsCompleted(int tripId) throws DAOException {
+<span class="fc" id="L131">        String sql = &quot;SELECT COUNT(*) FROM Booking WHERE trip_id = ? AND status = 'COMPLETED'&quot;;</span>
+<span class="fc" id="L132">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L133">            stmt.setInt(1, tripId);</span>
+<span class="fc" id="L134">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">                return rs.getInt(1) &gt; 0;</span>
+            }
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L139">            throw new DAOException(&quot;Error checking if trip is completed for trip ID: &quot; + tripId, e);</span>
+<span class="nc" id="L140">        }</span>
+<span class="nc" id="L141">        return false;</span>
+    }
+    
+    public BookingBean findById(int id) throws DAOException {
+<span class="fc" id="L145">        String sql = &quot;SELECT * FROM Booking WHERE id = ?&quot;;</span>
+<span class="fc" id="L146">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L147">            stmt.setInt(1, id);</span>
+<span class="fc" id="L148">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L150">                BookingBean booking = new BookingBean();</span>
+<span class="fc" id="L151">                booking.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L152">                booking.setTripId(rs.getInt(&quot;trip_id&quot;));</span>
+<span class="fc" id="L153">                booking.setPassengerId(rs.getInt(&quot;passenger_id&quot;));</span>
+<span class="fc" id="L154">                booking.setStatus(rs.getString(&quot;status&quot;));</span>
+<span class="fc" id="L155">                booking.setBookingDate(rs.getTimestamp(&quot;booking_date&quot;).toLocalDateTime());</span>
+<span class="fc" id="L156">                return booking;</span>
+            }
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L159">            throw new DAOException(&quot;Error finding booking by ID: &quot; + id, e);</span>
+<span class="nc" id="L160">        }</span>
+<span class="nc" id="L161">        return null;</span>
+    } 
+    
+    @Override
+    public int countAll() throws DAOException {
+<span class="fc" id="L166">        String sql = &quot;SELECT COUNT(*) FROM Booking&quot;;</span>
+<span class="fc" id="L167">        try (PreparedStatement ps = connection.prepareStatement(sql);</span>
+<span class="fc" id="L168">             ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            return rs.next() ? rs.getInt(1) : 0;</span>
+<span class="nc" id="L170">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+
+    @Override
+    public int countByStatus(String status) throws DAOException {
+<span class="fc" id="L175">        String sql = &quot;SELECT COUNT(*) FROM Booking WHERE status = ?&quot;;</span>
+<span class="fc" id="L176">        try (PreparedStatement ps = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L177">            ps.setString(1, status);</span>
+<span class="fc" id="L178">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">                return rs.next() ? rs.getInt(1) : 0;</span>
+            }
+<span class="nc" id="L181">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+
+    @Override
+    public java.math.BigDecimal sumCompletedEarnings() throws DAOException {
+<span class="fc" id="L186">        String sql = &quot;&quot;&quot;</span>
+            SELECT COALESCE(SUM(t.price), 0)
+            FROM Booking b
+            JOIN Trip t ON t.id = b.trip_id
+            WHERE b.status = 'COMPLETED'
+        &quot;&quot;&quot;;
+<span class="fc" id="L192">        try (PreparedStatement ps = connection.prepareStatement(sql);</span>
+<span class="fc" id="L193">             ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">            return rs.next() ? rs.getBigDecimal(1) : java.math.BigDecimal.ZERO;</span>
+<span class="nc" id="L195">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+    
+    @Override
+    public int countFiltered(Integer tripId, Integer passengerId, String status) throws DAOException {
+<span class="fc" id="L200">        StringBuilder sql = new StringBuilder(&quot;SELECT COUNT(*) FROM Booking b WHERE 1=1&quot;);</span>
+<span class="fc" id="L201">        List&lt;Object&gt; params = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (tripId != null) { sql.append(&quot; AND b.trip_id = ?&quot;); params.add(tripId); }</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        if (passengerId != null) { sql.append(&quot; AND b.passenger_id = ?&quot;); params.add(passengerId); }</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (status != null) { sql.append(&quot; AND b.status = ?&quot;); params.add(status); }</span>
+
+<span class="fc" id="L207">        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            for (int i = 0; i &lt; params.size(); i++) ps.setObject(i + 1, params.get(i));</span>
+<span class="fc" id="L209">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">                return rs.next() ? rs.getInt(1) : 0;</span>
+            }
+<span class="nc" id="L212">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+
+    @Override
+    public List&lt;BookingBean&gt; findPagedFiltered(Integer tripId, Integer passengerId, String status,
+                                               int offset, int limit) throws DAOException {
+<span class="fc" id="L218">        StringBuilder sql = new StringBuilder(</span>
+                &quot;SELECT b.id, b.trip_id, b.passenger_id, b.status, b.booking_date &quot; +
+                &quot;FROM Booking b WHERE 1=1&quot;
+        );
+<span class="fc" id="L222">        List&lt;Object&gt; params = new ArrayList&lt;&gt;();</span>
+
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (tripId != null) { sql.append(&quot; AND b.trip_id = ?&quot;); params.add(tripId); }</span>
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">        if (passengerId != null) { sql.append(&quot; AND b.passenger_id = ?&quot;); params.add(passengerId); }</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        if (status != null) { sql.append(&quot; AND b.status = ?&quot;); params.add(status); }</span>
+
+<span class="fc" id="L228">        sql.append(&quot; ORDER BY b.id DESC LIMIT ? OFFSET ?&quot;);</span>
+<span class="fc" id="L229">        params.add(limit);</span>
+<span class="fc" id="L230">        params.add(offset);</span>
+
+<span class="fc" id="L232">        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">            for (int i = 0; i &lt; params.size(); i++) ps.setObject(i + 1, params.get(i));</span>
+<span class="fc" id="L234">            List&lt;BookingBean&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L235">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">                while (rs.next()) {</span>
+<span class="fc" id="L237">                    BookingBean b = new BookingBean();</span>
+<span class="fc" id="L238">                    b.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L239">                    b.setTripId(rs.getInt(&quot;trip_id&quot;));</span>
+<span class="fc" id="L240">                    b.setPassengerId(rs.getInt(&quot;passenger_id&quot;));</span>
+<span class="fc" id="L241">                    b.setStatus(rs.getString(&quot;status&quot;));</span>
+<span class="fc" id="L242">                    Timestamp ts = rs.getTimestamp(&quot;booking_date&quot;);</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">                    if (ts != null) b.setBookingDate(ts.toLocalDateTime());</span>
+<span class="fc" id="L244">                    list.add(b);</span>
+<span class="fc" id="L245">                }</span>
+            }
+<span class="fc" id="L247">            return list;</span>
+<span class="nc" id="L248">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+
+    @Override
+    public boolean deleteById(int id) throws DAOException {
+<span class="fc" id="L253">        String sql = &quot;DELETE FROM Booking WHERE id = ?&quot;;</span>
+<span class="fc" id="L254">        try (PreparedStatement ps = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L255">            ps.setInt(1, id);</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">            return ps.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L257">        } catch (SQLException e) { throw new DAOException(e); }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

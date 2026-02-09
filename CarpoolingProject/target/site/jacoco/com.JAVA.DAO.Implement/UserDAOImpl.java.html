@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.DAO.Implement</a> &gt; <span class="el_source">UserDAOImpl.java</span></div><h1>UserDAOImpl.java</h1><pre class="source lang-java linenums">package com.JAVA.DAO.Implement;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.JAVA.Beans.UserBean;
+import com.JAVA.DAO.UserDAO;
+import com.JAVA.DAO.Exception.DAOException;
+
+public class UserDAOImpl implements UserDAO {
+    private Connection connection;
+
+<span class="fc" id="L14">    public UserDAOImpl(Connection connection) {</span>
+<span class="fc" id="L15">        this.connection = connection;</span>
+<span class="fc" id="L16">    }</span>
+
+    public boolean register(UserBean user) throws DAOException {
+<span class="fc" id="L19">        String sql = &quot;INSERT INTO \&quot;User\&quot; (email, password_hash, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?, ?)&quot;;</span>
+<span class="fc" id="L20">        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="fc" id="L21">            stmt.setString(1, user.getEmail());</span>
+<span class="fc" id="L22">            stmt.setString(2, user.getPasswordHash());</span>
+<span class="fc" id="L23">            stmt.setString(3, user.getFirstName());</span>
+<span class="fc" id="L24">            stmt.setString(4, user.getLastName());</span>
+<span class="fc" id="L25">            stmt.setString(5, user.getPhoneNumber());</span>
+<span class="fc" id="L26">            stmt.setString(6, user.getRole());</span>
+
+<span class="fc" id="L28">            int rows = stmt.executeUpdate();</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">            if (rows &gt; 0) {</span>
+<span class="fc" id="L30">                ResultSet rs = stmt.getGeneratedKeys();</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">                if (rs.next()) {</span>
+<span class="fc" id="L32">                    user.setId(rs.getInt(1));</span>
+                }
+<span class="fc" id="L34">                return true;</span>
+            }
+<span class="nc" id="L36">            return false;</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L38">            throw new DAOException(&quot;Error registering user with email: &quot; + user.getEmail(), e);</span>
+        }
+    }
+
+    public boolean emailExists(String email) throws DAOException {
+<span class="fc" id="L43">        String sql = &quot;SELECT id FROM \&quot;User\&quot; WHERE email = ?&quot;;</span>
+<span class="fc" id="L44">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L45">            stmt.setString(1, email);</span>
+<span class="fc" id="L46">            ResultSet rs = stmt.executeQuery();</span>
+<span class="fc" id="L47">            return rs.next();</span>
+<span class="nc" id="L48">        } catch (SQLException e) {</span>
+<span class="nc" id="L49">            throw new DAOException(&quot;Error checking if email exists: &quot; + email, e);</span>
+        }
+    }
+
+    public UserBean findByEmail(String email) throws DAOException {
+<span class="fc" id="L54">        String sql = &quot;SELECT * FROM \&quot;User\&quot; WHERE email = ?&quot;;</span>
+<span class="fc" id="L55">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L56">            stmt.setString(1, email);</span>
+<span class="fc" id="L57">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L59">                UserBean user = new UserBean();</span>
+<span class="fc" id="L60">                user.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L61">                user.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="fc" id="L62">                user.setPasswordHash(rs.getString(&quot;password_hash&quot;));</span>
+<span class="fc" id="L63">                user.setFirstName(rs.getString(&quot;first_name&quot;));</span>
+<span class="fc" id="L64">                user.setLastName(rs.getString(&quot;last_name&quot;));</span>
+<span class="fc" id="L65">                user.setPhoneNumber(rs.getString(&quot;phone_number&quot;));</span>
+<span class="fc" id="L66">                user.setRole(rs.getString(&quot;role&quot;));</span>
+<span class="fc" id="L67">                return user;</span>
+            }
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L70">            throw new DAOException(&quot;Error finding user by email: &quot; + email, e);</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">        return null;</span>
+    }
+
+    public UserBean findById(int id) throws DAOException {
+<span class="fc" id="L76">        String sql = &quot;SELECT id, email, first_name, last_name, phone_number, role FROM \&quot;User\&quot; WHERE id = ?&quot;;</span>
+<span class="fc" id="L77">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L78">            stmt.setInt(1, id);</span>
+<span class="fc" id="L79">            ResultSet rs = stmt.executeQuery();</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L81">                UserBean user = new UserBean();</span>
+<span class="fc" id="L82">                user.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L83">                user.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="fc" id="L84">                user.setFirstName(rs.getString(&quot;first_name&quot;));</span>
+<span class="fc" id="L85">                user.setLastName(rs.getString(&quot;last_name&quot;));</span>
+<span class="fc" id="L86">                user.setPhoneNumber(rs.getString(&quot;phone_number&quot;));</span>
+<span class="fc" id="L87">                user.setRole(rs.getString(&quot;role&quot;));</span>
+<span class="fc" id="L88">                return user;</span>
+            }
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L91">            throw new DAOException(&quot;Error finding user by ID: &quot; + id, e);</span>
+<span class="nc" id="L92">        }</span>
+<span class="nc" id="L93">        return null;</span>
+    }
+
+    @Override
+    public boolean update(UserBean u) throws DAOException {
+<span class="fc" id="L98">        final String sql = &quot;UPDATE \&quot;User\&quot; &quot; +</span>
+                &quot;SET email = ?, first_name = ?, last_name = ?, phone_number = ?, role = ? &quot; +
+                &quot;WHERE id = ?&quot;;
+
+<span class="fc" id="L102">        try (PreparedStatement ps = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L103">            ps.setString(1, u.getEmail());</span>
+<span class="fc" id="L104">            ps.setString(2, u.getFirstName());</span>
+<span class="fc" id="L105">            ps.setString(3, u.getLastName());</span>
+<span class="fc" id="L106">            ps.setString(4, u.getPhoneNumber());</span>
+<span class="fc" id="L107">            ps.setString(5, u.getRole());</span>
+<span class="fc" id="L108">            ps.setInt(6, u.getId());</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            return ps.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L110">        } catch (SQLException e) {</span>
+<span class="nc" id="L111">            throw new DAOException(e);</span>
+        }
+    }
+
+    public boolean updatePassword(int userId, String hashedPassword) throws DAOException {
+<span class="fc" id="L116">        String sql = &quot;UPDATE \&quot;User\&quot; SET password_hash = ? WHERE id = ?&quot;;</span>
+<span class="fc" id="L117">        try (PreparedStatement stmt = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L118">            stmt.setString(1, hashedPassword);</span>
+<span class="fc" id="L119">            stmt.setInt(2, userId);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            return stmt.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L121">        } catch (SQLException e) {</span>
+<span class="nc" id="L122">            throw new DAOException(&quot;Error updating password for user ID: &quot; + userId, e);</span>
+        }
+    }
+
+    @Override
+    public int countAll() throws DAOException {
+<span class="fc" id="L128">        String sql = &quot;SELECT COUNT(*) FROM \&quot;User\&quot;&quot;;</span>
+<span class="fc" id="L129">        try (PreparedStatement ps = connection.prepareStatement(sql);</span>
+<span class="fc" id="L130">                ResultSet rs = ps.executeQuery()) {</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            return rs.next() ? rs.getInt(1) : 0;</span>
+<span class="nc" id="L132">        } catch (SQLException e) {</span>
+<span class="nc" id="L133">            throw new DAOException(e);</span>
+        }
+    }
+
+    @Override
+    public boolean deleteById(int userId) throws DAOException {
+<span class="fc" id="L139">        String sql = &quot;DELETE FROM \&quot;User\&quot; WHERE id = ?&quot;;</span>
+<span class="fc" id="L140">        try (PreparedStatement ps = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L141">            ps.setInt(1, userId);</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">            return ps.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L143">        } catch (SQLException e) {</span>
+<span class="nc" id="L144">            throw new DAOException(e);</span>
+        }
+    }
+
+    @Override
+    public List&lt;UserBean&gt; findPaged(int offset, int limit) throws DAOException {
+<span class="fc" id="L150">        String sql = &quot;&quot;&quot;</span>
+                    SELECT id, email, first_name, last_name, phone_number, role, created_at
+                    FROM \&quot;User\&quot;
+                    ORDER BY id ASC
+                    LIMIT ? OFFSET ?
+                &quot;&quot;&quot;;
+<span class="fc" id="L156">        try (PreparedStatement ps = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L157">            ps.setInt(1, limit);</span>
+<span class="fc" id="L158">            ps.setInt(2, offset);</span>
+<span class="fc" id="L159">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="fc" id="L160">                List&lt;UserBean&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                while (rs.next()) {</span>
+<span class="fc" id="L162">                    UserBean u = new UserBean();</span>
+<span class="fc" id="L163">                    u.setId(rs.getInt(&quot;id&quot;));</span>
+<span class="fc" id="L164">                    u.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="fc" id="L165">                    u.setFirstName(rs.getString(&quot;first_name&quot;));</span>
+<span class="fc" id="L166">                    u.setLastName(rs.getString(&quot;last_name&quot;));</span>
+<span class="fc" id="L167">                    u.setPhoneNumber(rs.getString(&quot;phone_number&quot;));</span>
+<span class="fc" id="L168">                    u.setRole(rs.getString(&quot;role&quot;));</span>
+<span class="fc" id="L169">                    u.setCreatedAt(rs.getTimestamp(&quot;created_at&quot;).toLocalDateTime());</span>
+<span class="fc" id="L170">                    list.add(u);</span>
+<span class="fc" id="L171">                }</span>
+<span class="fc" id="L172">                return list;</span>
+            }
+<span class="nc" id="L174">        } catch (SQLException e) {</span>
+<span class="nc" id="L175">            throw new DAOException(e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

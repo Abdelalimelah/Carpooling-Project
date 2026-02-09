@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Filters</a> &gt; <span class="el_source">AdminFilter.java</span></div><h1>AdminFilter.java</h1><pre class="source lang-java linenums">package com.JAVA.Filters;
+
+
+import java.io.IOException;
+
+import com.JAVA.Beans.UserBean;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebFilter(urlPatterns = {&quot;/admin/*&quot;})
+<span class="fc" id="L19">public class AdminFilter implements Filter {</span>
+	
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+<span class="fc" id="L23">    	HttpServletRequest httpRequest = (HttpServletRequest) request;</span>
+<span class="fc" id="L24">        HttpServletResponse httpResponse = (HttpServletResponse) response;</span>
+<span class="fc" id="L25">        HttpSession session = httpRequest.getSession(false);</span>
+
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (session != null) {</span>
+<span class="fc" id="L28">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+<span class="pc bpc" id="L29" title="1 of 4 branches missed.">            if (user != null &amp;&amp; &quot;ADMIN&quot;.equals(user.getRole())) {</span>
+<span class="fc" id="L30">                chain.doFilter(request, response);</span>
+<span class="fc" id="L31">                return;</span>
+            }
+        }
+
+<span class="fc" id="L35">        String contextPath = httpRequest.getContextPath();</span>
+<span class="fc" id="L36">        httpResponse.sendRedirect(contextPath + &quot;/login?error=admin_access_required&quot;);</span>
+<span class="fc" id="L37">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

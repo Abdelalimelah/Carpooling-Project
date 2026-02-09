@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListUnreadNotificationsServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">ListUnreadNotificationsServlet.java</span></div><h1>ListUnreadNotificationsServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Connection;
+
+@WebServlet(&quot;/notifications/unread&quot;)
+<span class="fc" id="L17">public class ListUnreadNotificationsServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="fc" id="L22">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L24">            HttpSession session = req.getSession();</span>
+<span class="fc" id="L25">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L26">            int userId = user.getId();</span>
+
+<span class="fc" id="L28">            int limit = parseOrDefault(req.getParameter(&quot;limit&quot;), 10);</span>
+<span class="fc" id="L29">            int offset = parseOrDefault(req.getParameter(&quot;offset&quot;), 0);</span>
+
+<span class="fc" id="L31">            resp.setContentType(&quot;application/json&quot;);</span>
+<span class="fc" id="L32">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L33">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L35">            NotificationDAO dao = new NotificationDAOImpl(conn);</span>
+<span class="fc" id="L36">            int count = dao.countUnread(userId);</span>
+<span class="fc" id="L37">            var items = dao.getUnreadByUser(userId, limit, offset);</span>
+
+<span class="fc" id="L39">            String json = toJson(count, items);</span>
+<span class="fc" id="L40">            resp.getWriter().write(json);</span>
+<span class="nc" id="L41">        } catch (Exception e) {</span>
+<span class="nc" id="L42">            resp.sendError(500, &quot;Failed to load notifications&quot;);</span>
+        } finally {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L46">                    conn.close();</span>
+<span class="nc" id="L47">                } catch (Exception e) {</span>
+<span class="nc" id="L48">                    e.printStackTrace();</span>
+<span class="fc" id="L49">                }</span>
+            }
+        }
+<span class="fc" id="L52">    }</span>
+
+    private int parseOrDefault(String s, int def) {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        try { return s == null ? def : Integer.parseInt(s); } catch (Exception e) { return def; }</span>
+    }
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    private String escape(String s) { return s == null ? &quot;&quot; : s.replace(&quot;\&quot;&quot;,&quot;\\\&quot;&quot;); }</span>
+
+    private String toJson(int count, java.util.List&lt;NotificationBean&gt; items) {
+<span class="fc" id="L61">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L62">        sb.append(&quot;{\&quot;unreadCount\&quot;:&quot;).append(count).append(&quot;,\&quot;items\&quot;:[&quot;);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (int i=0; i&lt;items.size(); i++) {</span>
+<span class="fc" id="L64">            var n = items.get(i);</span>
+<span class="fc" id="L65">            sb.append(&quot;{&quot;)</span>
+<span class="fc" id="L66">              .append(&quot;\&quot;id\&quot;:&quot;).append(n.getId()).append(&quot;,&quot;)</span>
+<span class="fc" id="L67">              .append(&quot;\&quot;type\&quot;:\&quot;&quot;).append(escape(n.getType())).append(&quot;\&quot;,&quot;)</span>
+<span class="fc" id="L68">              .append(&quot;\&quot;message\&quot;:\&quot;&quot;).append(escape(n.getMessage())).append(&quot;\&quot;,&quot;)</span>
+<span class="fc" id="L69">              .append(&quot;\&quot;createdAt\&quot;:\&quot;&quot;).append(n.getCreatedAt()).append(&quot;\&quot;,&quot;)</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">              .append(&quot;\&quot;metadata\&quot;:&quot;).append(n.getMetadata() == null ? &quot;null&quot; : n.getMetadata())</span>
+<span class="fc" id="L71">              .append(&quot;}&quot;);</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (i &lt; items.size()-1) sb.append(&quot;,&quot;);</span>
+        }
+<span class="fc" id="L74">        sb.append(&quot;]}&quot;);</span>
+<span class="fc" id="L75">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

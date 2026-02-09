@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminDashboardServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">AdminDashboardServlet.java</span></div><h1>AdminDashboardServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.BookingDAOImpl;
+import com.JAVA.DAO.Implement.FeedbackDAOImpl;
+import com.JAVA.DAO.Implement.PassengerDAOImpl;
+import com.JAVA.DAO.Implement.TripDAOImpl;
+import com.JAVA.DAO.Implement.UserDAOImpl;
+import com.JAVA.Beans.FeedbackBean;
+import com.JAVA.Beans.UserBean;
+import com.JAVA.DAO.Factory.DAOFactory;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.util.List;
+
+@WebServlet(&quot;/admin/dashboard&quot;)
+<span class="fc" id="L25">public class AdminDashboardServlet extends HttpServlet {</span>
+	 private static final long serialVersionUID = 1L;
+	 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+    	
+<span class="fc" id="L31">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L33">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L34">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L36">            HttpSession session = request.getSession(false);</span>
+<span class="fc" id="L37">            UserBean user = (UserBean) session.getAttribute(&quot;user&quot;);</span>
+            
+<span class="fc" id="L39">            UserDAOImpl userDAO = new UserDAOImpl(conn);</span>
+<span class="fc" id="L40">            TripDAOImpl tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L41">            BookingDAOImpl bookingDAO = new BookingDAOImpl(conn);</span>
+<span class="fc" id="L42">            FeedbackDAOImpl feedbackDAO = new FeedbackDAOImpl(conn);</span>
+            
+<span class="fc" id="L44">            int totalBookings = bookingDAO.countAll();</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">            double cancellationRate = totalBookings == 0 ? 0.0 : (bookingDAO.countByStatus(&quot;CANCELLED&quot;) * 100.0 / totalBookings);</span>
+
+<span class="fc" id="L47">            String formattedCancellationRate = String.format(&quot;%.2f&quot;, cancellationRate);</span>
+            
+<span class="fc" id="L49">            BigDecimal totalEarnings = bookingDAO.sumCompletedEarnings();</span>
+            
+<span class="fc" id="L51">            final int PAGE_SIZE = 5;</span>
+<span class="fc" id="L52">            int page = 1;</span>
+            try {
+<span class="fc" id="L54">                String p = request.getParameter(&quot;u_page&quot;);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                if (p != null) page = Math.max(1, Integer.parseInt(p));</span>
+<span class="pc" id="L56">            } catch (NumberFormatException ignored) {}</span>
+
+<span class="fc" id="L58">            int offset = (page - 1) * PAGE_SIZE;</span>
+
+<span class="fc" id="L60">            int totalUsers = userDAO.countAll();</span>
+<span class="fc" id="L61">            List&lt;UserBean&gt; users = userDAO.findPaged(offset, PAGE_SIZE);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">            boolean hasNext = offset + PAGE_SIZE &lt; totalUsers;</span>
+            
+<span class="fc" id="L64">            final int T_PAGE_SIZE = 5;</span>
+            
+<span class="fc" id="L66">            String tStatus = request.getParameter(&quot;t_status&quot;);   </span>
+<span class="pc bpc" id="L67" title="3 of 4 branches missed.">            if (tStatus != null &amp;&amp; tStatus.isBlank()) tStatus = null;</span>
+
+<span class="fc" id="L69">            String tDate = request.getParameter(&quot;t_date&quot;);       </span>
+<span class="pc bpc" id="L70" title="3 of 4 branches missed.">            if (tDate != null &amp;&amp; tDate.isBlank()) tDate = null;</span>
+
+<span class="fc" id="L72">            int tPage = 1;</span>
+            try {
+<span class="fc" id="L74">                String tp = request.getParameter(&quot;t_page&quot;);</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">                if (tp != null) tPage = Math.max(1, Integer.parseInt(tp));</span>
+<span class="pc" id="L76">            } catch (NumberFormatException ignored) {}</span>
+<span class="fc" id="L77">            int tOffset = (tPage - 1) * T_PAGE_SIZE;</span>
+
+<span class="fc" id="L79">            int tTotal = tripDAO.countFiltered(tStatus, tDate);</span>
+<span class="fc" id="L80">            java.util.List&lt;com.JAVA.Beans.TripBean&gt; trips =</span>
+<span class="fc" id="L81">                    tripDAO.findPagedFiltered(tStatus, tDate, tOffset, T_PAGE_SIZE);</span>
+
+<span class="fc" id="L83">            java.util.Set&lt;Integer&gt; ids = new java.util.HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            for (var t : trips) ids.add(t.getId());</span>
+<span class="fc" id="L85">            java.util.Map&lt;Integer,String&gt; tripStatus = tripDAO.findDerivedStatusForTripIds(ids);</span>
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            boolean tHasNext = (tOffset + trips.size()) &lt; tTotal;</span>
+            
+
+<span class="fc" id="L90">            final int F_PAGE_SIZE = 5;</span>
+
+<span class="fc" id="L92">            String fType = request.getParameter(&quot;f_type&quot;);</span>
+<span class="pc bpc" id="L93" title="3 of 4 branches missed.">            if (fType != null &amp;&amp; fType.isBlank()) fType = null;</span>
+
+<span class="fc" id="L95">            Integer fAuthor = null;</span>
+            try {
+<span class="fc" id="L97">                String s = request.getParameter(&quot;f_author&quot;);</span>
+<span class="pc bpc" id="L98" title="3 of 4 branches missed.">                if (s != null &amp;&amp; !s.isBlank()) fAuthor = Integer.parseInt(s.trim());</span>
+<span class="pc" id="L99">            } catch (NumberFormatException ignored) {}</span>
+
+<span class="fc" id="L101">            Integer fTarget = null;</span>
+            try {
+<span class="fc" id="L103">                String s = request.getParameter(&quot;f_target&quot;);</span>
+<span class="pc bpc" id="L104" title="3 of 4 branches missed.">                if (s != null &amp;&amp; !s.isBlank()) fTarget = Integer.parseInt(s.trim());</span>
+<span class="pc" id="L105">            } catch (NumberFormatException ignored) {}</span>
+
+<span class="fc" id="L107">            Integer fMin = null;</span>
+            try {
+<span class="fc" id="L109">                String s = request.getParameter(&quot;f_min&quot;);</span>
+<span class="pc bpc" id="L110" title="3 of 4 branches missed.">                if (s != null &amp;&amp; !s.isBlank()) fMin = Math.max(1, Integer.parseInt(s.trim()));</span>
+<span class="pc" id="L111">            } catch (NumberFormatException ignored) {}</span>
+
+<span class="fc" id="L113">            int fPage = 1;</span>
+            try {
+<span class="fc" id="L115">                String fp = request.getParameter(&quot;f_page&quot;);</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">                if (fp != null) fPage = Math.max(1, Integer.parseInt(fp.trim()));</span>
+<span class="pc" id="L117">            } catch (NumberFormatException ignored) {}</span>
+<span class="fc" id="L118">            int fOffset = (fPage - 1) * F_PAGE_SIZE;</span>
+
+<span class="fc" id="L120">            int fTotal = feedbackDAO.countFiltered(fType, fAuthor, fTarget, fMin);</span>
+<span class="fc" id="L121">            List&lt;FeedbackBean&gt; feedbacks =</span>
+<span class="fc" id="L122">                    feedbackDAO.findPagedFiltered(fType, fAuthor, fTarget, fMin, fOffset, F_PAGE_SIZE);</span>
+
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            boolean fHasNext = (fOffset + feedbacks.size()) &lt; fTotal;</span>
+
+<span class="fc" id="L126">            java.util.Map&lt;Integer,String&gt; authorNames = new java.util.HashMap&lt;&gt;();</span>
+<span class="fc" id="L127">            java.util.Map&lt;Integer,String&gt; targetNames = new java.util.HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L129" title="All 2 branches covered.">            for (var fb : feedbacks) {</span>
+<span class="fc" id="L130">                int aId = fb.getAuthorId();</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                if (!authorNames.containsKey(aId)) {</span>
+<span class="fc" id="L132">                    var au = userDAO.findById(aId);</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">                    authorNames.put(aId, au != null</span>
+<span class="pc bpc" id="L134" title="2 of 4 branches missed.">                            ? ( (au.getFirstName()!=null?au.getFirstName():&quot;&quot;) + &quot; &quot; + (au.getLastName()!=null?au.getLastName():&quot;&quot;) ).trim()</span>
+<span class="nc" id="L135">                            : (&quot;#&quot; + aId));</span>
+                }
+<span class="fc" id="L137">                int tId = fb.getTargetId();</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">                if (!targetNames.containsKey(tId)) {</span>
+<span class="fc" id="L139">                    var tu = userDAO.findById(tId);</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">                    targetNames.put(tId, tu != null</span>
+<span class="pc bpc" id="L141" title="2 of 4 branches missed.">                            ? ( (tu.getFirstName()!=null?tu.getFirstName():&quot;&quot;) + &quot; &quot; + (tu.getLastName()!=null?tu.getLastName():&quot;&quot;) ).trim()</span>
+<span class="nc" id="L142">                            : (&quot;#&quot; + tId));</span>
+                }
+<span class="fc" id="L144">            }</span>
+            
+<span class="fc" id="L146">            final int B_PAGE_SIZE = 5;</span>
+
+<span class="fc" id="L148">            String bStatus = request.getParameter(&quot;b_status&quot;);</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">            if (bStatus != null) {</span>
+<span class="nc" id="L150">                bStatus = bStatus.trim();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">                if (bStatus.isEmpty()) bStatus = null;</span>
+            }
+
+<span class="fc" id="L154">            Integer bTripId = null;</span>
+<span class="fc" id="L155">            String rawTripId = request.getParameter(&quot;b_tripId&quot;);</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">            if (rawTripId != null) {</span>
+<span class="nc" id="L157">                rawTripId = rawTripId.trim();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                if (!rawTripId.isEmpty()) {</span>
+<span class="nc" id="L159">                    try { bTripId = Integer.valueOf(rawTripId); } catch (NumberFormatException ignored) {}</span>
+                }
+            }
+
+<span class="fc" id="L163">            Integer bPassengerId = null;</span>
+<span class="fc" id="L164">            String rawPassengerId = request.getParameter(&quot;b_passengerId&quot;);</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">            if (rawPassengerId != null) {</span>
+<span class="nc" id="L166">                rawPassengerId = rawPassengerId.trim();</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                if (!rawPassengerId.isEmpty()) {</span>
+<span class="nc" id="L168">                    try { bPassengerId = Integer.valueOf(rawPassengerId); } catch (NumberFormatException ignored) {}</span>
+                }
+            }
+
+<span class="fc" id="L172">            int bPage = 1;</span>
+<span class="fc" id="L173">            String rawBPage = request.getParameter(&quot;b_page&quot;);</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">            if (rawBPage != null) {</span>
+<span class="nc" id="L175">                rawBPage = rawBPage.trim();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                if (!rawBPage.isEmpty()) {</span>
+<span class="nc" id="L177">                    try { bPage = Math.max(1, Integer.parseInt(rawBPage)); } catch (NumberFormatException ignored) {}</span>
+                }
+            }
+<span class="fc" id="L180">            int bOffset = (bPage - 1) * B_PAGE_SIZE;</span>
+
+<span class="fc" id="L182">            PassengerDAOImpl passengerDAO = new PassengerDAOImpl(conn);</span>
+
+<span class="fc" id="L184">            int bTotal = bookingDAO.countFiltered(bTripId, bPassengerId, bStatus);</span>
+<span class="fc" id="L185">            java.util.List&lt;com.JAVA.Beans.BookingBean&gt; bookings =</span>
+<span class="fc" id="L186">                    bookingDAO.findPagedFiltered(bTripId, bPassengerId, bStatus, bOffset, B_PAGE_SIZE);</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">            boolean bHasNext = (bOffset + bookings.size()) &lt; bTotal;</span>
+
+<span class="fc" id="L189">            java.util.Map&lt;Integer, com.JAVA.Beans.TripBean&gt; bookingTripMap = new java.util.HashMap&lt;&gt;();</span>
+<span class="fc" id="L190">            java.util.Map&lt;Integer, String&gt; bookingPassengerNameMap = new java.util.HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            for (var b : bookings) {</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                if (!bookingTripMap.containsKey(b.getTripId())) {</span>
+<span class="fc" id="L194">                    var t = tripDAO.findById(b.getTripId());</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">                    if (t != null) bookingTripMap.put(b.getTripId(), t);</span>
+                }
+<span class="fc bfc" id="L197" title="All 2 branches covered.">                if (!bookingPassengerNameMap.containsKey(b.getPassengerId())) {</span>
+<span class="fc" id="L198">                    int uid = passengerDAO.findUserIdByPassengerId(b.getPassengerId());</span>
+<span class="fc" id="L199">                    String name = &quot;User #&quot; + uid;</span>
+<span class="fc" id="L200">                    var u = userDAO.findById(uid);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">                    if (u != null) {</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">                        String fn = (u.getFirstName() != null) ? u.getFirstName() : &quot;&quot;;</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">                        String ln = (u.getLastName() != null) ? u.getLastName() : &quot;&quot;;</span>
+<span class="fc" id="L204">                        name = (fn + &quot; &quot; + ln).trim();</span>
+<span class="pc bpc" id="L205" title="3 of 4 branches missed.">                        if (name.isBlank() &amp;&amp; u.getEmail() != null) name = u.getEmail();</span>
+                    }
+<span class="fc" id="L207">                    bookingPassengerNameMap.put(b.getPassengerId(), name);</span>
+                }
+<span class="fc" id="L209">            }</span>
+
+<span class="fc" id="L211">            request.setAttribute(&quot;bookings&quot;, bookings);</span>
+<span class="fc" id="L212">            request.setAttribute(&quot;b_total&quot;, bTotal);</span>
+<span class="fc" id="L213">            request.setAttribute(&quot;b_page&quot;, bPage);</span>
+<span class="fc" id="L214">            request.setAttribute(&quot;b_pageSize&quot;, B_PAGE_SIZE);</span>
+<span class="fc" id="L215">            request.setAttribute(&quot;b_hasNext&quot;, bHasNext);</span>
+<span class="fc" id="L216">            request.setAttribute(&quot;b_status&quot;, bStatus);</span>
+<span class="fc" id="L217">            request.setAttribute(&quot;b_tripId&quot;, bTripId);</span>
+<span class="fc" id="L218">            request.setAttribute(&quot;b_passengerId&quot;, bPassengerId);</span>
+<span class="fc" id="L219">            request.setAttribute(&quot;bookingTripMap&quot;, bookingTripMap);</span>
+<span class="fc" id="L220">            request.setAttribute(&quot;bookingPassengerNameMap&quot;, bookingPassengerNameMap);</span>
+            
+<span class="fc" id="L222">            request.setAttribute(&quot;feedbacks&quot;, feedbacks);</span>
+<span class="fc" id="L223">            request.setAttribute(&quot;authorNames&quot;, authorNames);</span>
+<span class="fc" id="L224">            request.setAttribute(&quot;targetNames&quot;, targetNames);</span>
+<span class="fc" id="L225">            request.setAttribute(&quot;f_type&quot;, fType);</span>
+<span class="fc" id="L226">            request.setAttribute(&quot;f_author&quot;, fAuthor);</span>
+<span class="fc" id="L227">            request.setAttribute(&quot;f_target&quot;, fTarget);</span>
+<span class="fc" id="L228">            request.setAttribute(&quot;f_min&quot;, fMin);</span>
+<span class="fc" id="L229">            request.setAttribute(&quot;f_page&quot;, fPage);</span>
+<span class="fc" id="L230">            request.setAttribute(&quot;f_pageSize&quot;, F_PAGE_SIZE);</span>
+<span class="fc" id="L231">            request.setAttribute(&quot;f_hasNext&quot;, fHasNext);</span>
+<span class="fc" id="L232">            request.setAttribute(&quot;f_total&quot;, fTotal);</span>
+
+<span class="fc" id="L234">            request.setAttribute(&quot;t_status&quot;, tStatus);</span>
+<span class="fc" id="L235">            request.setAttribute(&quot;t_date&quot;, tDate);</span>
+<span class="fc" id="L236">            request.setAttribute(&quot;t_total&quot;, tTotal);</span>
+<span class="fc" id="L237">            request.setAttribute(&quot;t_page&quot;, tPage);</span>
+<span class="fc" id="L238">            request.setAttribute(&quot;t_pageSize&quot;, T_PAGE_SIZE);</span>
+<span class="fc" id="L239">            request.setAttribute(&quot;t_hasNext&quot;, tHasNext);</span>
+<span class="fc" id="L240">            request.setAttribute(&quot;trips&quot;, trips);</span>
+<span class="fc" id="L241">            request.setAttribute(&quot;tripStatus&quot;, tripStatus);</span>
+            
+<span class="fc" id="L243">            request.setAttribute(&quot;totalTrips&quot;, tripDAO.countAll());</span>
+<span class="fc" id="L244">            request.setAttribute(&quot;totalBookings&quot;, totalBookings);</span>
+<span class="fc" id="L245">            request.setAttribute(&quot;totalFeedbacks&quot;, feedbackDAO.countAll());</span>
+<span class="fc" id="L246">            request.setAttribute(&quot;cancellationRate&quot;, formattedCancellationRate);</span>
+<span class="fc" id="L247">            request.setAttribute(&quot;totalEarnings&quot;, totalEarnings);</span>
+<span class="fc" id="L248">            request.setAttribute(&quot;totalUsers&quot;, totalUsers);</span>
+            
+<span class="fc" id="L250">            request.setAttribute(&quot;users&quot;, users);</span>
+<span class="fc" id="L251">            request.setAttribute(&quot;u_page&quot;, page);</span>
+<span class="fc" id="L252">            request.setAttribute(&quot;u_pageSize&quot;, PAGE_SIZE);</span>
+<span class="fc" id="L253">            request.setAttribute(&quot;u_hasNext&quot;, hasNext);</span>
+<span class="fc" id="L254">            request.setAttribute(&quot;user&quot;, user);</span>
+            
+<span class="fc" id="L256">            request.getRequestDispatcher(&quot;/views/admin/dashboard.jsp&quot;).forward(request, response);</span>
+            
+<span class="nc" id="L258">        } catch (Exception e) {</span>
+<span class="nc" id="L259">            e.printStackTrace();</span>
+<span class="nc" id="L260">            request.setAttribute(&quot;errorMessage&quot;, &quot;Error loading dashboard&quot;);</span>
+<span class="nc" id="L261">            request.getRequestDispatcher(&quot;/views/admin/dashboard.jsp&quot;).forward(request, response);</span>
+        } finally {
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">            if (conn != null) {</span>
+<span class="pc" id="L264">                try { conn.close(); } catch (Exception e) { e.printStackTrace(); }</span>
+            }
+        }
+<span class="fc" id="L267">    }  </span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

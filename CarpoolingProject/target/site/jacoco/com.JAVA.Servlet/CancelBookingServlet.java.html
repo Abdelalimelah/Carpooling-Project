@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CancelBookingServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">CancelBookingServlet.java</span></div><h1>CancelBookingServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import java.io.IOException; 
+import java.sql.Connection;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.*;
+import com.JAVA.Beans.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet(&quot;/driver/bookings/cancel&quot;)
+<span class="fc" id="L17">public class CancelBookingServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L21">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L23">            int bookingId = Integer.parseInt(request.getParameter(&quot;id&quot;));</span>
+<span class="fc" id="L24">            int tripId = Integer.parseInt(request.getParameter(&quot;tripId&quot;));</span>
+            
+<span class="fc" id="L26">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L27">            conn = daoFactory.getConnection();</span>
+            
+<span class="fc" id="L29">            BookingDAO bookingDAO = new BookingDAOImpl(conn);</span>
+            
+<span class="fc" id="L31">            BookingBean booking = bookingDAO.findById(bookingId);</span>
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">            if (booking == null) {</span>
+<span class="nc" id="L33">                response.sendError(HttpServletResponse.SC_NOT_FOUND, &quot;Booking not found&quot;);</span>
+<span class="nc" id="L34">                return;</span>
+            }
+            
+<span class="fc" id="L37">            TripDAO tripDAO = new TripDAOImpl(conn);</span>
+<span class="fc" id="L38">            TripBean trip = tripDAO.findById(tripId);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">            if (trip == null) {</span>
+<span class="nc" id="L40">                response.sendError(HttpServletResponse.SC_NOT_FOUND, &quot;Trip not found&quot;);</span>
+<span class="nc" id="L41">                return;</span>
+            }
+            
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">            if (bookingDAO.updateStatus(bookingId, &quot;CANCELLED&quot;)) {</span>
+<span class="fc" id="L45">                response.sendRedirect(request.getContextPath() + &quot;/driver/trips/details?id=&quot; + tripId + &quot;&amp;bookingUpdated=1&quot;);</span>
+                
+<span class="fc" id="L47">                PassengerDAO passengerDAO = new PassengerDAOImpl(conn);</span>
+<span class="fc" id="L48">                int passengerUserId = passengerDAO.findUserIdByPassengerId(booking.getPassengerId());</span>
+
+<span class="fc" id="L50">                NotificationBean notification = new NotificationBean();</span>
+<span class="fc" id="L51">                notification.setUserId(passengerUserId);</span>
+<span class="fc" id="L52">                notification.setType(&quot;BOOKING_CANCELLED&quot;);</span>
+<span class="fc" id="L53">                notification.setMessage(&quot;Your booking for &quot; + trip.getDepartureCity() + &quot; → &quot; + </span>
+<span class="fc" id="L54">                                      trip.getArrivalCity() + &quot; was cancelled by the driver.&quot;);</span>
+<span class="fc" id="L55">                NotificationDAO notifDAO = new NotificationDAOImpl(conn);</span>
+<span class="fc" id="L56">                notifDAO.create(notification);</span>
+                
+<span class="fc" id="L58">            } else {</span>
+<span class="nc" id="L59">                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, &quot;Failed to cancel&quot;);</span>
+            }
+<span class="nc" id="L61">        } catch (Exception e) {</span>
+<span class="nc" id="L62">            e.printStackTrace();</span>
+<span class="nc" id="L63">            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, &quot;Error: &quot; + e.getMessage());</span>
+        } finally {
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            if (conn != null) {</span>
+                try {
+<span class="fc" id="L67">                    conn.close();</span>
+<span class="nc" id="L68">                } catch (Exception e) {</span>
+<span class="nc" id="L69">                    e.printStackTrace();</span>
+<span class="fc" id="L70">                }</span>
+            }
+        }
+<span class="fc" id="L73">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

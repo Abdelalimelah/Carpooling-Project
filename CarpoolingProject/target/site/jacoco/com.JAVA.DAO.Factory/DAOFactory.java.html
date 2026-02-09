@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DAOFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.DAO.Factory</a> &gt; <span class="el_source">DAOFactory.java</span></div><h1>DAOFactory.java</h1><pre class="source lang-java linenums">package com.JAVA.DAO.Factory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import com.JAVA.DAO.Exception.DAOConfigurationException;
+
+public class DAOFactory {
+
+    private static final String FICHIER_PROPERTIES       = &quot;com/JAVA/DAO/Factory/dao.properties&quot;;
+    private static final String PROPERTY_URL             = &quot;url&quot;;
+    private static final String PROPERTY_DRIVER          = &quot;driver&quot;;
+    private static final String PROPERTY_NOM_UTILISATEUR = &quot;nomutilisateur&quot;;
+    private static final String PROPERTY_MOT_DE_PASSE    = &quot;motdepasse&quot;;
+
+    private String url;
+    private String username;
+    private String password;
+
+<span class="fc" id="L24">    DAOFactory( String url, String username, String password ) {</span>
+<span class="fc" id="L25">        this.url = url;</span>
+<span class="fc" id="L26">        this.username = username;</span>
+<span class="fc" id="L27">        this.password = password;</span>
+<span class="fc" id="L28">    }</span>
+
+    public static DAOFactory getInstance() throws DAOConfigurationException {
+<span class="fc" id="L31">        Properties properties = new Properties();</span>
+        String url;
+        String driver;
+        String nomUtilisateur;
+        String motDePasse;
+
+<span class="fc" id="L37">        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();</span>
+<span class="fc" id="L38">        InputStream fichierProperties = classLoader.getResourceAsStream( FICHIER_PROPERTIES );</span>
+
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if ( fichierProperties == null ) {</span>
+<span class="nc" id="L41">            throw new DAOConfigurationException( &quot;Le fichier properties &quot; + FICHIER_PROPERTIES + &quot; est introuvable.&quot; );</span>
+        }
+
+        try {
+<span class="fc" id="L45">            properties.load( fichierProperties );</span>
+<span class="fc" id="L46">            url = properties.getProperty( PROPERTY_URL );</span>
+<span class="fc" id="L47">            driver = properties.getProperty( PROPERTY_DRIVER );</span>
+<span class="fc" id="L48">            nomUtilisateur = properties.getProperty( PROPERTY_NOM_UTILISATEUR );</span>
+<span class="fc" id="L49">            motDePasse = properties.getProperty( PROPERTY_MOT_DE_PASSE );</span>
+<span class="nc" id="L50">        } catch ( IOException e ) {</span>
+<span class="nc" id="L51">            throw new DAOConfigurationException( &quot;Impossible de charger le fichier properties &quot; + FICHIER_PROPERTIES, e );</span>
+<span class="fc" id="L52">        }</span>
+
+        try {
+<span class="fc" id="L55">            Class.forName( driver );</span>
+<span class="nc" id="L56">        } catch ( ClassNotFoundException e ) {</span>
+<span class="nc" id="L57">            throw new DAOConfigurationException( &quot;Le driver est introuvable dans le classpath.&quot;, e );</span>
+<span class="fc" id="L58">        }</span>
+
+<span class="fc" id="L60">        DAOFactory instance = new DAOFactory( url, nomUtilisateur, motDePasse );</span>
+<span class="fc" id="L61">        return instance;</span>
+    }
+
+    public Connection getConnection() throws SQLException {
+<span class="fc" id="L65">        return DriverManager.getConnection( url, username, password );</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

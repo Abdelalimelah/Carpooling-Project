@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegisterServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Servlet</a> &gt; <span class="el_source">RegisterServlet.java</span></div><h1>RegisterServlet.java</h1><pre class="source lang-java linenums">package com.JAVA.Servlet;
+
+import com.JAVA.DAO.Implement.*;
+import com.JAVA.DAO.Factory.DAOFactory;
+import com.JAVA.DAO.*; 
+import com.JAVA.Beans.*;
+import com.JAVA.Utils.PasswordUtil;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.Connection;
+
+@WebServlet(&quot;/register&quot;)
+<span class="fc" id="L17">public class RegisterServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="nc" id="L22">        request.getRequestDispatcher(&quot;/views/auth/register.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L23">    }</span>
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+<span class="fc" id="L27">        String role = request.getParameter(&quot;role&quot;);</span>
+<span class="fc" id="L28">        String email = request.getParameter(&quot;email&quot;);</span>
+<span class="fc" id="L29">        String password = request.getParameter(&quot;password&quot;);</span>
+<span class="fc" id="L30">        String confirmPassword = request.getParameter(&quot;confirmPassword&quot;);</span>
+<span class="fc" id="L31">        String firstName = request.getParameter(&quot;firstName&quot;);</span>
+<span class="fc" id="L32">        String lastName = request.getParameter(&quot;lastName&quot;);</span>
+<span class="fc" id="L33">        String phoneNumber = request.getParameter(&quot;phoneNumber&quot;);</span>
+
+<span class="pc bpc" id="L35" title="3 of 6 branches missed.">        if (email == null || email.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L36" title="3 of 6 branches missed.">            password == null || password.length() &lt; 6 ||</span>
+            firstName == null || lastName == null) {
+<span class="nc" id="L38">            request.setAttribute(&quot;errorMessage&quot;, &quot;Please fill all required fields.&quot;);</span>
+<span class="nc" id="L39">            request.getRequestDispatcher(&quot;/views/auth/register.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L40">            return;</span>
+        }
+        
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        if (!password.equals(confirmPassword)) {</span>
+<span class="nc" id="L44">            request.setAttribute(&quot;errorMessage&quot;, &quot;Passwords do not match.&quot;);</span>
+<span class="nc" id="L45">            request.getRequestDispatcher(&quot;/views/auth/register.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L46">            return;</span>
+        }
+        
+<span class="fc" id="L49">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L51">            DAOFactory daoFactory = DAOFactory.getInstance();</span>
+<span class="fc" id="L52">            conn = daoFactory.getConnection();</span>
+<span class="fc" id="L53">            conn.setAutoCommit(false); </span>
+
+<span class="fc" id="L55">            UserDAO userDAO = new UserDAOImpl(conn);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">            if (userDAO.emailExists(email)) {</span>
+<span class="nc" id="L57">                request.setAttribute(&quot;errorMessage&quot;, &quot;Email already registered.&quot;);</span>
+<span class="nc" id="L58">                request.getRequestDispatcher(&quot;/views/auth/register.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L59">                return;</span>
+            }
+
+<span class="fc" id="L62">            String hashedPassword = PasswordUtil.hashPasswordWithSalt(password);</span>
+            
+
+<span class="fc" id="L65">            UserBean user = new UserBean();</span>
+<span class="fc" id="L66">            user.setEmail(email);</span>
+<span class="fc" id="L67">            user.setPasswordHash(hashedPassword);</span>
+<span class="fc" id="L68">            user.setFirstName(firstName);</span>
+<span class="fc" id="L69">            user.setLastName(lastName);</span>
+<span class="fc" id="L70">            user.setPhoneNumber(phoneNumber);</span>
+<span class="fc" id="L71">            user.setRole(role);</span>
+
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">            if (!userDAO.register(user)) {</span>
+<span class="nc" id="L74">                throw new Exception(&quot;Failed to register user&quot;);</span>
+            }
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">            if (&quot;DRIVER&quot;.equals(role)) {</span>
+<span class="nc" id="L78">                String licenceNumber = request.getParameter(&quot;licenceNumber&quot;);</span>
+<span class="nc" id="L79">                String carBrand = request.getParameter(&quot;carBrand&quot;);</span>
+<span class="nc" id="L80">                String carModel = request.getParameter(&quot;carModel&quot;);</span>
+<span class="nc" id="L81">                String plateNumber = request.getParameter(&quot;plateNumber&quot;);</span>
+
+<span class="nc bnc" id="L83" title="All 10 branches missed.">                if (licenceNumber == null || licenceNumber.trim().isEmpty() ||</span>
+                    carBrand == null || carModel == null || plateNumber == null) {
+<span class="nc" id="L85">                    throw new Exception(&quot;Missing driver or car info&quot;);</span>
+                }
+
+<span class="nc" id="L88">                DriverDAO driverDAO = new DriverDAOImpl(conn);</span>
+<span class="nc" id="L89">                DriverBean driver = new DriverBean();</span>
+<span class="nc" id="L90">                driver.setUserId(user.getId());</span>
+<span class="nc" id="L91">                driver.setLicenceNumber(licenceNumber.trim());</span>
+                
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                if (!driverDAO.create(driver)) {</span>
+<span class="nc" id="L94">                    throw new Exception(&quot;Failed to create driver profile&quot;);</span>
+                }
+
+<span class="nc" id="L97">                CarDAO carDAO = new CarDAOImpl(conn);</span>
+<span class="nc" id="L98">                CarBean car = new CarBean();</span>
+<span class="nc" id="L99">                car.setDriverId(driver.getId());</span>
+<span class="nc" id="L100">                car.setBrand(carBrand.trim());</span>
+<span class="nc" id="L101">                car.setModel(carModel.trim());</span>
+<span class="nc" id="L102">                car.setPlateNumber(plateNumber.trim());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                if (!carDAO.create(car)) {</span>
+<span class="nc" id="L104">                    throw new Exception(&quot;Failed to register car&quot;);</span>
+                } 
+                
+<span class="nc" id="L107">            } else {</span>
+<span class="fc" id="L108">                PassengerDAO passengerDAO = new PassengerDAOImpl(conn);</span>
+<span class="fc" id="L109">                PassengerBean passenger = new PassengerBean();</span>
+<span class="fc" id="L110">                passenger.setUserId(user.getId());</span>
+                
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">                if (!passengerDAO.create(passenger)) {</span>
+<span class="nc" id="L113">                    throw new Exception(&quot;Failed to create passenger profile&quot;);</span>
+                }
+            }
+
+<span class="fc" id="L117">            conn.commit();</span>
+<span class="fc" id="L118">            response.sendRedirect(&quot;login?registered=1&quot;);</span>
+
+<span class="nc" id="L120">        } catch (Exception e) {</span>
+<span class="nc" id="L121">            e.printStackTrace();</span>
+            try {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                if (conn != null) conn.rollback();</span>
+<span class="nc" id="L124">            } catch (Exception ex) {</span>
+<span class="nc" id="L125">                ex.printStackTrace();</span>
+<span class="nc" id="L126">            }</span>
+<span class="nc" id="L127">            request.setAttribute(&quot;errorMessage&quot;, &quot;Registration failed. Please try again.&quot;);</span>
+<span class="nc" id="L128">            request.getRequestDispatcher(&quot;/views/auth/register.jsp&quot;).forward(request, response);</span>
+        } finally {
+            try {
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                if (conn != null) {</span>
+<span class="fc" id="L132">                    conn.setAutoCommit(true);</span>
+<span class="fc" id="L133">                    conn.close();</span>
+                }
+<span class="nc" id="L135">            } catch (Exception e) {</span>
+<span class="nc" id="L136">                e.printStackTrace();</span>
+<span class="fc" id="L137">            }</span>
+        }
+<span class="fc" id="L139">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

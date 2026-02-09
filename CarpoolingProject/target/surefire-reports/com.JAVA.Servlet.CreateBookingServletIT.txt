@@ -1,17 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.Servlet.CreateBookingServletIT
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.018 s <<< FAILURE! -- in com.JAVA.Servlet.CreateBookingServletIT
-com.JAVA.Servlet.CreateBookingServletIT.createBooking_redirects -- Time elapsed: 0.017 s <<< FAILURE!
-Wanted but not invoked:
-httpServletResponse.sendRedirect(
-    "/app/passenger/dashboard?bookingCreated=1"
-);
--> at com.JAVA.Servlet.CreateBookingServletIT.createBooking_redirects(CreateBookingServletIT.java:18)
-Actually, there were zero interactions with this mock.
-
-	at com.JAVA.Servlet.CreateBookingServletIT.createBooking_redirects(CreateBookingServletIT.java:18)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s -- in com.JAVA.Servlet.CreateBookingServletIT

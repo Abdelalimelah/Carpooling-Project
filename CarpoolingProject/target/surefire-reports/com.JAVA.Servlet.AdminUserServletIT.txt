@@ -1,18 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.Servlet.AdminUserServletIT
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.047 s <<< FAILURE! -- in com.JAVA.Servlet.AdminUserServletIT
-com.JAVA.Servlet.AdminUserServletIT.editUser_forwards -- Time elapsed: 0.024 s <<< FAILURE!
-Wanted but not invoked:
-requestDispatcher.forward(
-    Mock for HttpServletRequest, hashCode: 140468053,
-    Mock for HttpServletResponse, hashCode: 20039101
-);
--> at com.JAVA.Servlet.AdminUserServletIT.editUser_forwards(AdminUserServletIT.java:19)
-Actually, there were zero interactions with this mock.
-
-	at com.JAVA.Servlet.AdminUserServletIT.editUser_forwards(AdminUserServletIT.java:19)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.055 s -- in com.JAVA.Servlet.AdminUserServletIT

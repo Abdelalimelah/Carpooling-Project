@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TripBean.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CarPooling</a> &gt; <a href="index.source.html" class="el_package">com.JAVA.Beans</a> &gt; <span class="el_source">TripBean.java</span></div><h1>TripBean.java</h1><pre class="source lang-java linenums">package com.JAVA.Beans;
+
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+<span class="fc" id="L7">public class TripBean {</span>
+    private int id;
+    private String departureCity;
+    private String arrivalCity;
+    private LocalDateTime dateTime;
+    private BigDecimal price;
+    private int seatsAvailable;
+    private int driverId;
+    private int carId;
+    private LocalDateTime createdAt;
+
+
+    public int getId() {
+<span class="fc" id="L20">        return id;</span>
+    }
+
+    public void setId(int id) {
+<span class="fc" id="L24">        this.id = id;</span>
+<span class="fc" id="L25">    }</span>
+
+    public String getDepartureCity() {
+<span class="fc" id="L28">        return departureCity;</span>
+    }
+
+    public void setDepartureCity(String departureCity) {
+<span class="fc" id="L32">        this.departureCity = departureCity;</span>
+<span class="fc" id="L33">    }</span>
+
+    public String getArrivalCity() {
+<span class="fc" id="L36">        return arrivalCity;</span>
+    }
+
+    public void setArrivalCity(String arrivalCity) {
+<span class="fc" id="L40">        this.arrivalCity = arrivalCity;</span>
+<span class="fc" id="L41">    }</span>
+
+    public LocalDateTime getDateTime() {
+<span class="fc" id="L44">        return dateTime;</span>
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+<span class="fc" id="L48">        this.dateTime = dateTime;</span>
+<span class="fc" id="L49">    }</span>
+
+    public BigDecimal getPrice() {
+<span class="fc" id="L52">        return price;</span>
+    }
+
+    public void setPrice(BigDecimal price) {
+<span class="fc" id="L56">        this.price = price;</span>
+<span class="fc" id="L57">    }</span>
+
+    public int getSeatsAvailable() {
+<span class="fc" id="L60">        return seatsAvailable;</span>
+    }
+
+    public void setSeatsAvailable(int seatsAvailable) {
+<span class="fc" id="L64">        this.seatsAvailable = seatsAvailable;</span>
+<span class="fc" id="L65">    }</span>
+
+    public int getDriverId() {
+<span class="fc" id="L68">        return driverId;</span>
+    }
+
+    public void setDriverId(int driverId) {
+<span class="fc" id="L72">        this.driverId = driverId;</span>
+<span class="fc" id="L73">    }</span>
+
+    public int getCarId() {
+<span class="fc" id="L76">        return carId;</span>
+    }
+
+    public void setCarId(int carId) {
+<span class="fc" id="L80">        this.carId = carId;</span>
+<span class="fc" id="L81">    }</span>
+
+    public LocalDateTime getCreatedAt() {
+<span class="fc" id="L84">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+<span class="fc" id="L88">        this.createdAt = createdAt;</span>
+<span class="fc" id="L89">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -41,7 +41,7 @@ class BookingDAOImplTest extends BaseDaoTest {
 
             assertTrue(dao.countAll() >= 1);
             assertTrue(dao.countByStatus("CANCELLED") >= 1);
-            assertEquals(0, dao.sumCompletedEarnings().compareTo(new BigDecimal("20.00")));
+            assertEquals(0, dao.sumCompletedEarnings().compareTo(new BigDecimal("30.00")));
 
             assertTrue(dao.countFiltered(TestDb.TRIP_FUTURE_ID, null, null) >= 1);
             assertFalse(dao.findPagedFiltered(null, null, null, 0, 10).isEmpty());

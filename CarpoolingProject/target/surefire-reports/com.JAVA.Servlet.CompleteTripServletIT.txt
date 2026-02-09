@@ -1,24 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.Servlet.CompleteTripServletIT
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.034 s <<< FAILURE! -- in com.JAVA.Servlet.CompleteTripServletIT
-com.JAVA.Servlet.CompleteTripServletIT.completeTrip_redirects -- Time elapsed: 0.034 s <<< FAILURE!
-Wanted but not invoked:
-httpServletResponse.sendRedirect(
-    <any string>
-);
--> at com.JAVA.Servlet.CompleteTripServletIT.completeTrip_redirects(CompleteTripServletIT.java:18)
-
-However, there was exactly 1 interaction with this mock:
-httpServletResponse.sendError(
-    500,
-    "Error completing trip: Le fichier properties /com/JAVA/DAO/Factory/dao.properties est introuvable."
-);
--> at com.JAVA.Servlet.CompleteTripServlet.doGet(CompleteTripServlet.java:70)
-
-
-	at com.JAVA.Servlet.CompleteTripServletIT.completeTrip_redirects(CompleteTripServletIT.java:18)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.041 s -- in com.JAVA.Servlet.CompleteTripServletIT
