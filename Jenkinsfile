@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Clone') { // [cite: 23]
             steps {
-                git branch: 'master', url: 'https://github.com/Abdelalimelah/Carpooling-Project.git'
+                git branch: 'devops', url: 'https://github.com/Abdelalimelah/Carpooling-Project.git'
             }
         }
         stage('Build & Test') { // [cite: 24, 25]
