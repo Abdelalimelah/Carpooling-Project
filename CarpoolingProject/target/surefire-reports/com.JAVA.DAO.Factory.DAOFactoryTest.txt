@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.JAVA.DAO.Factory.DAOFactoryTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.615 s -- in com.JAVA.DAO.Factory.DAOFactoryTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.432 s -- in com.JAVA.DAO.Factory.DAOFactoryTest

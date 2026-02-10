@@ -16,6 +16,10 @@ public class DAOFactory {
     private static final String PROPERTY_DRIVER          = "driver";
     private static final String PROPERTY_NOM_UTILISATEUR = "nomutilisateur";
     private static final String PROPERTY_MOT_DE_PASSE    = "motdepasse";
+    private static final String ENV_URL                  = "DB_URL";
+    private static final String ENV_DRIVER               = "DB_DRIVER";
+    private static final String ENV_USER                 = "DB_USER";
+    private static final String ENV_PASS                 = "DB_PASS";
 
     private String url;
     private String username;
@@ -43,10 +47,10 @@ public class DAOFactory {
 
         try {
             properties.load( fichierProperties );
-            url = properties.getProperty( PROPERTY_URL );
-            driver = properties.getProperty( PROPERTY_DRIVER );
-            nomUtilisateur = properties.getProperty( PROPERTY_NOM_UTILISATEUR );
-            motDePasse = properties.getProperty( PROPERTY_MOT_DE_PASSE );
+            url = pickEnvOrProperty( ENV_URL, properties.getProperty( PROPERTY_URL ) );
+            driver = pickEnvOrProperty( ENV_DRIVER, properties.getProperty( PROPERTY_DRIVER ) );
+            nomUtilisateur = pickEnvOrProperty( ENV_USER, properties.getProperty( PROPERTY_NOM_UTILISATEUR ) );
+            motDePasse = pickEnvOrProperty( ENV_PASS, properties.getProperty( PROPERTY_MOT_DE_PASSE ) );
         } catch ( IOException e ) {
             throw new DAOConfigurationException( "Impossible de charger le fichier properties " + FICHIER_PROPERTIES, e );
         }
@@ -63,6 +67,11 @@ public class DAOFactory {
 
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection( url, username, password );
+    }
+
+    private static String pickEnvOrProperty(String envKey, String fallback) {
+        String v = System.getenv(envKey);
+        return (v != null && !v.isBlank()) ? v : fallback;
     }
 
 }
