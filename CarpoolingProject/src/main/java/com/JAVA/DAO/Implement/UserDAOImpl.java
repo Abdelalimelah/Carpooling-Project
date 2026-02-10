@@ -10,13 +10,15 @@ import com.JAVA.DAO.Exception.DAOException;
 
 public class UserDAOImpl implements UserDAO {
     private Connection connection;
+    private final String userTable;
 
     public UserDAOImpl(Connection connection) {
         this.connection = connection;
+        this.userTable = resolveUserTable(connection);
     }
 
     public boolean register(UserBean user) throws DAOException {
-        String sql = "INSERT INTO `User` (email, password_hash, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + userTable + " (email, password_hash, first_name, last_name, phone_number, role) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getPasswordHash());
@@ -40,7 +42,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public boolean emailExists(String email) throws DAOException {
-        String sql = "SELECT id FROM `User` WHERE email = ?";
+        String sql = "SELECT id FROM " + userTable + " WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -51,7 +53,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public UserBean findByEmail(String email) throws DAOException {
-        String sql = "SELECT * FROM `User` WHERE email = ?";
+        String sql = "SELECT * FROM " + userTable + " WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -73,7 +75,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public UserBean findById(int id) throws DAOException {
-        String sql = "SELECT id, email, first_name, last_name, phone_number, role FROM `User` WHERE id = ?";
+        String sql = "SELECT id, email, first_name, last_name, phone_number, role FROM " + userTable + " WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -95,7 +97,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean update(UserBean u) throws DAOException {
-        final String sql = "UPDATE `User` " +
+        final String sql = "UPDATE " + userTable + " " +
                 "SET email = ?, first_name = ?, last_name = ?, phone_number = ?, role = ? " +
                 "WHERE id = ?";
 
@@ -113,7 +115,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public boolean updatePassword(int userId, String hashedPassword) throws DAOException {
-        String sql = "UPDATE `User` SET password_hash = ? WHERE id = ?";
+        String sql = "UPDATE " + userTable + " SET password_hash = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, hashedPassword);
             stmt.setInt(2, userId);
@@ -125,7 +127,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public int countAll() throws DAOException {
-        String sql = "SELECT COUNT(*) FROM `User`";
+        String sql = "SELECT COUNT(*) FROM " + userTable;
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
@@ -136,7 +138,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean deleteById(int userId) throws DAOException {
-        String sql = "DELETE FROM `User` WHERE id = ?";
+        String sql = "DELETE FROM " + userTable + " WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             return ps.executeUpdate() > 0;
@@ -149,10 +151,10 @@ public class UserDAOImpl implements UserDAO {
     public List<UserBean> findPaged(int offset, int limit) throws DAOException {
         String sql = """
                     SELECT id, email, first_name, last_name, phone_number, role, created_at
-                    FROM `User`
+                    FROM %s
                     ORDER BY id ASC
                     LIMIT ? OFFSET ?
-                """;
+                """.formatted(userTable);
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
@@ -174,5 +176,17 @@ public class UserDAOImpl implements UserDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         }
+    }
+
+    private static String resolveUserTable(Connection connection) {
+        try {
+            String dbName = connection.getMetaData().getDatabaseProductName();
+            if (dbName != null && dbName.toLowerCase().contains("h2")) {
+                return "\"User\"";
+            }
+        } catch (SQLException e) {
+            // Ignore and fall back to MySQL-compatible quoting
+        }
+        return "`User`";
     }
 }

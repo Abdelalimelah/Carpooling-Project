@@ -48,10 +48,10 @@ public final class TestDb {
             st.execute("DROP TABLE IF EXISTS Passenger");
             st.execute("DROP TABLE IF EXISTS FeedBack");
             st.execute("DROP TABLE IF EXISTS notification");
-            st.execute("DROP TABLE IF EXISTS User");
+            st.execute("DROP TABLE IF EXISTS \"User\"");
 
             st.execute("""
-                CREATE TABLE User (
+                CREATE TABLE "User" (
                   id INT AUTO_INCREMENT PRIMARY KEY,
                   email VARCHAR(255),
                   password_hash VARCHAR(255),
@@ -171,7 +171,7 @@ public final class TestDb {
         insertNotification(conn, NOTIF_READ_ID, PASSENGER_USER_ID, "BOOKING_CONFIRMED", "Confirmed", true, null);
 
         try (Statement st = conn.createStatement()) {
-            st.execute("ALTER TABLE User ALTER COLUMN id RESTART WITH 100");
+            st.execute("ALTER TABLE \"User\" ALTER COLUMN id RESTART WITH 100");
             st.execute("ALTER TABLE Driver ALTER COLUMN id RESTART WITH 100");
             st.execute("ALTER TABLE Passenger ALTER COLUMN id RESTART WITH 100");
             st.execute("ALTER TABLE Car ALTER COLUMN id RESTART WITH 100");
@@ -186,7 +186,7 @@ public final class TestDb {
                                   String firstName, String lastName, String phone, String role) throws SQLException {
         String hash = PasswordUtil.hashPasswordWithSalt(rawPassword);
         try (PreparedStatement ps = conn.prepareStatement("""
-            INSERT INTO User (id, email, password_hash, first_name, last_name, phone_number, role, created_at)
+            INSERT INTO "User" (id, email, password_hash, first_name, last_name, phone_number, role, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         """)) {
             ps.setInt(1, id);
