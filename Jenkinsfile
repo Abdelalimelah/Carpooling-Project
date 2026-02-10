@@ -1,18 +1,19 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9.12' // Assurez-vous que Maven est configure dans Jenkins
+        maven 'Maven-3.9.12' // Asurez-vous que Maven est configure dans Jenkins
         jdk 'JDK-17'
     }
     environment {
         DOCKER_IMAGE = 'tl4trxsh/carpooling-project'
-        DOCKER_TAG = 'V1'
+        DOCKER_TAG = 'V2'
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'
+        KUBE_CONFIG_CREDENTIALS_ID = 'kubeconfig'
     }
     stages {
         stage('Clone') { // [cite: 23]
             steps {
-                git branch: 'devop_docker', url: 'https://github.com/Abdelalimelah/Carpooling-Project.git'
+                git branch: 'devops_k8s', url: 'https://github.com/Abdelalimelah/Carpooling-Project.git'
             }
         }
         stage('Build & Test') { // [cite: 24, 25]
@@ -44,6 +45,15 @@ pipeline {
                     bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
                     bat "docker push %DOCKER_IMAGE%:%DOCKER_TAG%"
                     bat "docker logout"
+                }
+            }
+        }
+        stage('Deploy to K8s') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBE_CONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG_FILE')]) {
+                    bat "kubectl --kubeconfig %KUBECONFIG_FILE% apply -f CarpoolingProject/k8s/"
+                    bat "kubectl --kubeconfig %KUBECONFIG_FILE% set image deployment/carpooling-app carpooling=%DOCKER_IMAGE%:%DOCKER_TAG%"
+                    bat "kubectl --kubeconfig %KUBECONFIG_FILE% rollout status deployment/carpooling-app"
                 }
             }
         }
