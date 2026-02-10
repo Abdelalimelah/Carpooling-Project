@@ -1,0 +1,72 @@
+USE carpooling;
+
+CREATE TABLE IF NOT EXISTS `User` (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255),
+  password_hash VARCHAR(255),
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  phone_number VARCHAR(50),
+  role VARCHAR(20),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Driver (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  licence_number VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS Passenger (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT
+);
+
+CREATE TABLE IF NOT EXISTS Car (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  brand VARCHAR(100),
+  model VARCHAR(100),
+  plate_number VARCHAR(50),
+  driver_id INT
+);
+
+CREATE TABLE IF NOT EXISTS Trip (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  departure_city VARCHAR(100),
+  arrival_city VARCHAR(100),
+  date_time TIMESTAMP,
+  price DECIMAL(10,2),
+  seats_available INT,
+  driver_id INT,
+  car_id INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Booking (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  trip_id INT,
+  passenger_id INT,
+  status VARCHAR(20),
+  booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS FeedBack (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  rating INT,
+  comment VARCHAR(500),
+  date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  author_id INT,
+  target_id INT,
+  feedback_type VARCHAR(20),
+  trip_id INT
+);
+
+CREATE TABLE IF NOT EXISTS notification (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  type VARCHAR(50),
+  message VARCHAR(500),
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  metadata VARCHAR(500)
+);

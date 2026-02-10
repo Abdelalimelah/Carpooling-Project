@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carpooling-app
+  labels:
+    app: carpooling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: carpooling
+  template:
+    metadata:
+      labels:
+        app: carpooling
+    spec:
+      imagePullSecrets:
+        - name: dockerhub-secret
+      containers:
+        - name: carpooling
+          image: tl4trxsh/carpooling-project:V2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: "jdbc:mysql://db:3306/carpooling?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+            - name: DB_DRIVER
+              value: "com.mysql.cj.jdbc.Driver"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASS
+              value: "root"

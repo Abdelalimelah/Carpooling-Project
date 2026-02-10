@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: carpooling-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: carpooling.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: carpooling-service
+                port:
+                  number: 8080
