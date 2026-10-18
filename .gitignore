@@ -1,0 +1,28 @@
+# Maven build target
+target/
+
+# Compiled Java class files
+*.class
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# NetBeans
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.built-jar.properties

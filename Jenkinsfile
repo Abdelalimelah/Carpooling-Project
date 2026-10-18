@@ -1,29 +1,24 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9.12' // Assurez-vous que Maven est configuré dans Jenkins
+        maven 'Maven-3.9.12'
         jdk 'JDK-17'
     }
     stages {
-        stage('Clone') { // [cite: 23]
+        stage('Clone') {
             steps {
                 git branch: 'master', url: 'https://github.com/Abdelalimelah/Carpooling-Project.git'
             }
         }
-        stage('Build & Test') { // [cite: 24, 25]
-            
+        stage('Build & Test') {
             steps {
-                dir('CarpoolingProject') {
-                    bat 'mvn clean verify' // Compile et lance les tests unitaires
-                }
+                bat 'mvn clean verify'
             }
         }
-        stage('SonarQube Analysis') { // [cite: 27]
+        stage('SonarQube Analysis') {
             steps {
-                dir('CarpoolingProject') {
-                    withSonarQubeEnv('SonarQube-Server') { // Nom configuré dans Jenkins
-                        bat 'mvn sonar:sonar'
-                    }
+                withSonarQubeEnv('SonarQube-Server') {
+                    bat 'mvn sonar:sonar'
                 }
             }
         }
