@@ -1,6 +1,6 @@
 <div align="center">
 
-# CarPooling � Web Application for Ride Sharing
+# CarPooling — Web Application for Ride Sharing
 
 **A full-featured Java EE / Jakarta EE web application for intercity carpooling, connecting drivers and passengers with role-based dashboards, ride management, booking workflows, and automated Jenkins CI/CD.**
 
@@ -15,15 +15,16 @@
 <br />
 
 <p align="center">
-  <a href="#overview">Overview</a> �
-  <a href="#key-features">Features</a> �
-  <a href="#role-based-capabilities">User Roles</a> �
-  <a href="#architecture--design-patterns">Architecture</a> �
-  <a href="#tech-stack">Tech Stack</a> �
-  <a href="#database-schema">Database</a> �
-  <a href="#getting-started">Getting Started</a> �
-  <a href="#cicd-pipeline">CI/CD</a> �
-  <a href="#servlet-reference">Servlets</a>
+  <a href="#overview">Overview</a> •
+  <a href="#key-features">Features</a> •
+  <a href="#role-based-capabilities">User Roles</a> •
+  <a href="#architecture--design-patterns">Architecture</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#database-schema">Database</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#cicd-pipeline">CI/CD</a> •
+  <a href="#servlet-reference">Servlets</a> •
+  <a href="#repository-structure">Structure</a>
 </p>
 
 </div>
@@ -41,9 +42,9 @@ Built around standard Jakarta EE architectural patterns (MVC, DAO, Service Layer
 ## Key Features
 
 - **Authentication & Security**:
-  - Secure registration and login flows with hashed passwords via PasswordUtil.
+  - Secure registration and login flows with hashed passwords via `PasswordUtil`.
   - HTTP Session authentication management with automated session invalidation upon logout.
-  - Granular access enforcement using dedicated Jakarta Servlet HTTP Filters (AdminFilter, DriverFilter, PassengerFilter, LoginFilter).
+  - Granular access enforcement using dedicated Jakarta Servlet HTTP Filters (`AdminFilter`, `DriverFilter`, `PassengerFilter`, `LoginFilter`).
 
 - **Driver Management**:
   - Vehicle management: register, update, and remove vehicles with license plate, model, color, and seat capacity.
@@ -98,38 +99,41 @@ Built around standard Jakarta EE architectural patterns (MVC, DAO, Service Layer
 
 The application follows the classic enterprise three-tier Jakarta EE architecture:
 
-`	ext
-+-----------------------------------------------------------+
-|                 Presentation Layer (Views)                |
-|             JSP, JSTL 2.0, HTML5, CSS3, JavaScript        |
-+-----------------------------------------------------------+
-                             |
-                             v
-+-----------------------------------------------------------+
-|                   Controller Layer (Web)                  |
-|          Jakarta Servlets (HttpServlet) & HTTP Filters     |
-|   (AdminFilter, DriverFilter, PassengerFilter, LoginFilter)|
-+-----------------------------------------------------------+
-                             |
-                             v
-+-----------------------------------------------------------+
-|                   Business & Data Access                  |
-|                 Java Beans (POJOs / DTOs)                 |
-|             DAO Factory & DAO Implementations             |
-+-----------------------------------------------------------+
-                             |
-                             v
-+-----------------------------------------------------------+
-|                     Persistence Layer                     |
-|           MySQL 8.0 via JDBC (mysql-connector-j-9.4.0)    |
-|                H2 In-Memory Database (Tests)              |
-+-----------------------------------------------------------+
-`
+```mermaid
+flowchart TD
+    subgraph Presentation["Presentation Layer (Views)"]
+        JSP["JSP, JSTL 2.0, HTML5, CSS3, JavaScript"]
+    end
+
+    subgraph Controller["Controller Layer (Web)"]
+        Filters["HTTP Security Filters<br/>AdminFilter, DriverFilter, PassengerFilter, LoginFilter"]
+        Servlets["Jakarta Servlets<br/>RegisterServlet, LoginServlet, TripServlet, etc."]
+        Filters --> Servlets
+    end
+
+    subgraph Business["Business & Data Access Layer"]
+        Beans["Java Beans (POJOs / DTOs)"]
+        DAO["DAO Interfaces & Implementations<br/>UserDAO, TripDAO, BookingDAO, CarDAO, etc."]
+        Factory["DAOFactory & dao.properties"]
+        Servlets --> DAO
+        Servlets --> Beans
+        DAO --> Factory
+    end
+
+    subgraph Persistence["Persistence Layer"]
+        MySQL[("MySQL 8.0 Database<br/>carpoolingdb")]
+        H2[("H2 In-Memory Database<br/>Unit Tests")]
+        DAO --> MySQL
+        DAO -.-> H2
+    end
+
+    Presentation <--> Controller
+```
 
 ### Core Design Patterns Applied:
-1. **Model-View-Controller (MVC)**: Clean separation of presentation (.jsp views), routing/processing (Servlets), and domain state (Beans).
-2. **Data Access Object (DAO) Pattern**: Decouples business logic from persistence operations through interfaces (UserDAO, TripDAO, BookingDAO, CarDAO, FeedbackDAO, NotificationDAO).
-3. **Abstract Factory Pattern**: Centralized connection management and DAO instantiation via DAOFactory driven by dao.properties.
+1. **Model-View-Controller (MVC)**: Clean separation of presentation (`.jsp` views), routing/processing (`Servlets`), and domain state (`Beans`).
+2. **Data Access Object (DAO) Pattern**: Decouples business logic from persistence operations through interfaces (`UserDAO`, `TripDAO`, `BookingDAO`, `CarDAO`, `FeedbackDAO`, `NotificationDAO`).
+3. **Abstract Factory Pattern**: Centralized connection management and DAO instantiation via `DAOFactory` driven by `dao.properties`.
 4. **Intercepting Filter Pattern**: Jakarta Servlet Filters intercepting requests to validate authentication tokens and role authorization prior to servlet execution.
 
 ---
@@ -152,16 +156,16 @@ The application follows the classic enterprise three-tier Jakarta EE architectur
 
 ## Database Schema
 
-The persistence layer uses a normalized relational schema under the database name carpoolingdb:
+The persistence layer uses a normalized relational schema under the database name `carpoolingdb`:
 
-- **User**: id, email, password_hash, irst_name, last_name, phone_number, ole, created_at, updated_at
-- **Driver**: user_id (FK to User), license_number, io, ating
-- **Passenger**: user_id (FK to User), ating
-- **Car**: id, driver_id (FK to User), make, model, year, license_plate, color, seats
-- **Trip**: id, driver_id (FK to User), car_id (FK to Car), departure_city, rrival_city, date_time, price, seats_available, created_at
-- **Booking**: id, 	rip_id (FK to Trip), passenger_id (FK to User), seats_booked, 	otal_price, status, created_at
-- **Feedback**: id, ooking_id (FK to Booking), rom_user_id (FK to User), 	o_user_id (FK to User), ating, comment, created_at
-- **Notification**: id, user_id (FK to User), message, is_read, created_at
+- **User**: `id`, `email`, `password_hash`, `first_name`, `last_name`, `phone_number`, `role`, `created_at`, `updated_at`
+- **Driver**: `user_id` (FK to User), `license_number`, `bio`, `rating`
+- **Passenger**: `user_id` (FK to User), `rating`
+- **Car**: `id`, `driver_id` (FK to User), `make`, `model`, `year`, `license_plate`, `color`, `seats`
+- **Trip**: `id`, `driver_id` (FK to User), `car_id` (FK to Car), `departure_city`, `arrival_city`, `date_time`, `price`, `seats_available`, `created_at`
+- **Booking**: `id`, `trip_id` (FK to Trip), `passenger_id` (FK to User), `seats_booked`, `total_price`, `status`, `created_at`
+- **Feedback**: `id`, `booking_id` (FK to Booking), `from_user_id` (FK to User), `to_user_id` (FK to User), `rating`, `comment`, `created_at`
+- **Notification**: `id`, `user_id` (FK to User), `message`, `is_read`, `created_at`
 
 ---
 
@@ -174,53 +178,53 @@ The persistence layer uses a normalized relational schema under the database nam
 - **Servlet Container**: Apache Tomcat 10.1+ ([Download](https://tomcat.apache.org/download-10.cgi))
 
 ### 2. Clone the Repository
-`ash
+```bash
 git clone https://github.com/Abdelalimelah/Carpooling-Project.git
 cd Carpooling-Project
-`
+```
 
 ### 3. Database Setup
 Create the MySQL database:
-`sql
+```sql
 CREATE DATABASE carpoolingdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-`
+```
 
 Update your database credentials in the configuration file:
-src/main/java/com/JAVA/DAO/Factory/dao.properties
+`src/main/java/com/JAVA/DAO/Factory/dao.properties`
 
-`properties
+```properties
 url = jdbc:mysql://localhost:3306/carpoolingdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 driver = com.mysql.cj.jdbc.Driver
 nomutilisateur = your_mysql_username
 motdepasse = your_mysql_password
-`
+```
 
 ### 4. Build and Package
 To compile source code, execute unit tests, and package the WAR archive:
-`ash
+```bash
 mvn clean package
-`
+```
 The compiled archive will be generated at:
-	arget/CarPooling-1.0.war
+`target/CarPooling-1.0.war`
 
 ### 5. Running the Tests
 To run unit and integration tests with JUnit 5 and Mockito:
-`ash
+```bash
 mvn clean test
-`
+```
 
 ### 6. Deployment
 
 #### Deploy to Apache Tomcat 10+:
-1. Copy the generated WAR file into your Tomcat webapps/ folder:
-   `ash
+1. Copy the generated WAR file into your Tomcat `webapps/` folder:
+   ```bash
    cp target/CarPooling-1.0.war <TOMCAT_HOME>/webapps/carpooling.war
-   `
+   ```
 2. Start Tomcat:
-   - On Linux/macOS: <TOMCAT_HOME>/bin/startup.sh
-   - On Windows: <TOMCAT_HOME>\bin\startup.bat
+   - On Linux/macOS: `<TOMCAT_HOME>/bin/startup.sh`
+   - On Windows: `<TOMCAT_HOME>\bin\startup.bat`
 3. Access the application in your browser:
-   http://localhost:8080/carpooling/
+   `http://localhost:8080/carpooling/`
 
 #### Deploy in Eclipse or IntelliJ IDEA:
 1. Open the project as an **Existing Maven Project**.
@@ -231,9 +235,9 @@ mvn clean test
 
 ## CI/CD Pipeline
 
-The project includes an automated declarative pipeline defined in [Jenkinsfile](Jenkinsfile):
+The project includes an automated declarative pipeline defined in [`Jenkinsfile`](Jenkinsfile):
 
-`groovy
+```groovy
 pipeline {
     agent any
     tools {
@@ -260,11 +264,11 @@ pipeline {
         }
     }
 }
-`
+```
 
 The pipeline automatically triggers:
 1. Source checkout from GitHub.
-2. Clean compilation and execution of unit and integration test suites (mvn clean verify).
+2. Clean compilation and execution of unit and integration test suites (`mvn clean verify`).
 3. Static code analysis and security vulnerability scanning via SonarQube.
 
 ---
@@ -273,79 +277,79 @@ The pipeline automatically triggers:
 
 | Servlet Name | URL Pattern | Required Role | Functionality |
 |---|---|:---:|---|
-| RegisterServlet | /register | Public | Account creation for Passengers and Drivers |
-| LoginServlet | /login | Public | Session authentication & role-based dispatch |
-| LogoutServlet | /logout | Authenticated | Session invalidation and redirect to login |
-| ProfileServlet | /profile | Authenticated | View and edit user personal info |
-| BrowseTripsServlet | /browseTrips | Public / Passenger | Search and filter available rides |
-| CreateTripServlet | /createTrip | Driver | Publish a new intercity ride |
-| EditTripServlet | /editTrip | Driver | Update departure, route, price, or seats |
-| DeleteTripServlet | /deleteTrip | Driver | Cancel and delete scheduled trip |
-| TripDetailsServlet | /tripDetails | Driver | View detailed trip passenger roster |
-| AddCarServlet | /addCar | Driver | Register a new vehicle to driver profile |
-| EditCarServlet | /editCar | Driver | Update vehicle information |
-| DeleteCarServlet | /deleteCar | Driver | Remove a vehicle from driver profile |
-| DriverDashServlet | /driverDashboard | Driver | Driver overview of trips, cars, and bookings |
-| CreateBookingServlet| /createBooking | Passenger | Reserve seats on a selected trip |
-| CancelBookingServlet| /cancelBooking | Passenger | Cancel an existing booking reservation |
-| PassengerDashboardServlet | /passengerDashboard | Passenger | Passenger history of active and past bookings |
-| TripDetailsPassengerServlet | /tripDetailsPassenger | Passenger | View itinerary and driver details |
-| FeedbackServlet | /feedback | Authenticated | Post reviews and star ratings |
-| ListUnreadNotificationsServlet | /notifications | Authenticated | Fetch list of unread user alerts |
-| MarkAllReadServlet | /markAllRead | Authenticated | Acknowledge all pending notifications |
-| AdminDashboardServlet | /admin/dashboard | Admin | High-level metrics, revenue, and stats |
-| AdminUserServlet | /admin/users | Admin | User listing, role updates, and deletions |
-| AdminTripServlet | /admin/trips | Admin | Trip supervision, search, and moderation |
-| AdminBookingServlet| /admin/bookings | Admin | Reservation dispute resolution and oversight |
-| AdminFeedbackServlet| /admin/feedbacks | Admin | Audit passenger and driver reviews |
+| `RegisterServlet` | `/register` | Public | Account creation for Passengers and Drivers |
+| `LoginServlet` | `/login` | Public | Session authentication & role-based dispatch |
+| `LogoutServlet` | `/logout` | Authenticated | Session invalidation and redirect to login |
+| `ProfileServlet` | `/profile` | Authenticated | View and edit user personal info |
+| `BrowseTripsServlet` | `/browseTrips` | Public / Passenger | Search and filter available rides |
+| `CreateTripServlet` | `/createTrip` | Driver | Publish a new intercity ride |
+| `EditTripServlet` | `/editTrip` | Driver | Update departure, route, price, or seats |
+| `DeleteTripServlet` | `/deleteTrip` | Driver | Cancel and delete scheduled trip |
+| `TripDetailsServlet` | `/tripDetails` | Driver | View detailed trip passenger roster |
+| `AddCarServlet` | `/addCar` | Driver | Register a new vehicle to driver profile |
+| `EditCarServlet` | `/editCar` | Driver | Update vehicle information |
+| `DeleteCarServlet` | `/deleteCar` | Driver | Remove a vehicle from driver profile |
+| `DriverDashServlet` | `/driverDashboard` | Driver | Driver overview of trips, cars, and bookings |
+| `CreateBookingServlet`| `/createBooking` | Passenger | Reserve seats on a selected trip |
+| `CancelBookingServlet`| `/cancelBooking` | Passenger | Cancel an existing booking reservation |
+| `PassengerDashboardServlet` | `/passengerDashboard` | Passenger | Passenger history of active and past bookings |
+| `TripDetailsPassengerServlet` | `/tripDetailsPassenger` | Passenger | View itinerary and driver details |
+| `FeedbackServlet` | `/feedback` | Authenticated | Post reviews and star ratings |
+| `ListUnreadNotificationsServlet` | `/notifications` | Authenticated | Fetch list of unread user alerts |
+| `MarkAllReadServlet` | `/markAllRead` | Authenticated | Acknowledge all pending notifications |
+| `AdminDashboardServlet` | `/admin/dashboard` | Admin | High-level metrics, revenue, and stats |
+| `AdminUserServlet` | `/admin/users` | Admin | User listing, role updates, and deletions |
+| `AdminTripServlet` | `/admin/trips` | Admin | Trip supervision, search, and moderation |
+| `AdminBookingServlet`| `/admin/bookings` | Admin | Reservation dispute resolution and oversight |
+| `AdminFeedbackServlet`| `/admin/feedbacks` | Admin | Audit passenger and driver reviews |
 
 ---
 
 ## Repository Structure
 
-`	ext
+```text
 Carpooling-Project/
-+-- .classpath               # Eclipse project classpath configuration
-+-- .gitignore               # Ignored build artifacts, logs, and OS files
-+-- .project                 # Eclipse project definition
-+-- .settings/               # IDE configuration parameters
-+-- Jenkinsfile              # Declarative CI/CD pipeline script
-+-- pom.xml                  # Maven project descriptor, dependencies & plugins
-+-- README.md                # Project documentation
-�
-+-- src/
-    +-- main/
-    �   +-- java/
-    �   �   +-- com/JAVA/
-    �   �       +-- Beans/               # Entity models (User, Trip, Car, Booking, etc.)
-    �   �       +-- DAO/                 # Data Access Object interfaces
-    �   �       �   +-- Exception/       # Custom DAO exceptions
-    �   �       �   +-- Factory/         # DAOFactory & dao.properties
-    �   �       �   +-- Implement/       # JDBC implementations of DAOs
-    �   �       +-- Filters/             # Authentication & role authorization filters
-    �   �       +-- Servlet/             # Controller servlets for user actions
-    �   �       +-- Utils/               # Password hashing & helper utilities
-    �   �
-    �   +-- webapp/
-    �       +-- META-INF/
-    �       +-- WEB-INF/
-    �       �   +-- lib/                 # JSTL & MySQL JDBC runtime libraries
-    �       +-- views/
-    �           +-- admin/               # Admin dashboards & management JSPs
-    �           +-- auth/                # Login & registration forms
-    �           +-- driver/              # Driver dashboards, car & trip forms
-    �           +-- feedback/            # Review & rating forms
-    �           +-- home/                # Welcome & public home views
-    �           +-- passenger/           # Ride search & booking management views
-    �           +-- profile/             # User profile editing views
-    �
-    +-- test/
-        +-- java/
-            +-- com/JAVA/
-                +-- Beans/               # Bean unit tests
-                +-- Servlet/             # Servlet integration tests (Mockito)
-                +-- Utils/               # Password utility unit tests
-`
+├── .classpath               # Eclipse project classpath configuration
+├── .gitignore               # Ignored build artifacts, logs, and OS files
+├── .project                 # Eclipse project definition
+├── .settings/               # IDE configuration parameters
+├── Jenkinsfile              # Declarative CI/CD pipeline script
+├── pom.xml                  # Maven project descriptor, dependencies & plugins
+├── README.md                # Project documentation
+│
+└── src/
+    ├── main/
+    │   ├── java/
+    │   │   └── com/JAVA/
+    │   │       ├── Beans/               # Entity models (User, Trip, Car, Booking, etc.)
+    │   │       ├── DAO/                 # Data Access Object interfaces
+    │   │       │   ├── Exception/       # Custom DAO exceptions
+    │   │       │   ├── Factory/         # DAOFactory & dao.properties
+    │   │       │   └── Implement/       # JDBC implementations of DAOs
+    │   │       ├── Filters/             # Authentication & role authorization filters
+    │   │       ├── Servlet/             # Controller servlets for user actions
+    │   │       └── Utils/               # Password hashing & helper utilities
+    │   │
+    │   └── webapp/
+    │       ├── META-INF/
+    │       ├── WEB-INF/
+    │       │   └── lib/                 # JSTL & MySQL JDBC runtime libraries
+    │       └── views/
+    │           ├── admin/               # Admin dashboards & management JSPs
+    │           ├── auth/                # Login & registration forms
+    │           ├── driver/              # Driver dashboards, car & trip forms
+    │           ├── feedback/            # Review & rating forms
+    │           ├── home/                # Welcome & public home views
+    │           ├── passenger/           # Ride search & booking management views
+    │           └── profile/             # User profile editing views
+    │
+    └── test/
+        └── java/
+            └── com/JAVA/
+                ├── Beans/               # Bean unit tests
+                ├── Servlet/             # Servlet integration tests (Mockito)
+                └── Utils/               # Password utility unit tests
+```
 
 ---
 
